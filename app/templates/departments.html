@@ -6,7 +6,7 @@
         <div class="alert alert-info">{{ messages[0] }}</div>
       {% endif %}
     {% endwith %}
-    <a href="{{ url_for('add_department') }}" class="btn btn-primary mb-3">Add Department</a>
+    <a href="{{ url_for('departments.add_department') }}" class="btn btn-primary mb-3">Add Department</a>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -23,8 +23,8 @@
                 <td>{{ dept.name }}</td>
                 <td>{{ dept.description }}</td>
                 <td>
-                    <a href="{{ url_for('edit_department', department_id=dept.department_id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{{ url_for('delete_department', department_id=dept.department_id) }}" method="post" style="display:inline-block;">
+                    <a href="{{ url_for('departments.edit_department', department_id=dept.department_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ url_for('departments.delete_department', department_id=dept.department_id) }}" method="post" style="display:inline-block;">
                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this department?');">Delete</button>
                     </form>
                 </td>

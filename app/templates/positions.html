@@ -6,7 +6,7 @@
         <div class="alert alert-info">{{ messages[0] }}</div>
       {% endif %}
     {% endwith %}
-    <a href="{{ url_for('add_position') }}" class="btn btn-primary mb-3">Add Position</a>
+    <a href="{{ url_for('positions.add_position') }}" class="btn btn-primary mb-3">Add Position</a>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -25,8 +25,8 @@
                 <td>{{ pos[2] }}</td>
                 <td>{{ pos[3] or '' }}</td>
                 <td>
-                    <a href="{{ url_for('edit_position', position_id=pos[0]) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{{ url_for('delete_position', position_id=pos[0]) }}" method="post" style="display:inline-block;">
+                    <a href="{{ url_for('positions.edit_position', position_id=pos[0]) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ url_for('positions.delete_position', position_id=pos[0]) }}" method="post" style="display:inline-block;">
                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this position?');">Delete</button>
                     </form>
                 </td>
