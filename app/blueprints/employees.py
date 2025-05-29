@@ -7,15 +7,19 @@ employees_bp = Blueprint('employees', __name__)
 @employees_bp.route('/employees')
 def employees():
     Manager = aliased(Employee)
-    employees = db.session.query(Employee, Position, Manager).\
+    from models import Department
+    employees = db.session.query(Employee, Position, Department, Manager).\
         outerjoin(Position, Employee.position_id == Position.position_id).\
+        outerjoin(Department, Position.department_id == Department.department_id).\
         outerjoin(Manager, Employee.manager_id == Manager.employee_id).\
         order_by(Employee.employee_id).all()
-    def emp_row(e, p, m):
+    def emp_row(e, p, d, m):
+        manager_fullname = f"{m.first_name} {m.last_name}" if m else ''
         return (
             e.employee_id, e.first_name, e.last_name, e.personal_email,
             p.title if p else '',
-            (m.first_name if m else None), (m.last_name if m else None)
+            d.name if d else '',
+            manager_fullname
         )
     return render_template('employees.html', employees=[emp_row(*row) for row in employees])
 
