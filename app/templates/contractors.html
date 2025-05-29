@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Contractors</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+    <a href="{{ url_for('add_contractor') }}" class="btn btn-primary mb-3">Add Contractor</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Department</th>
+                <th>Manager</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for c in contractors %}
+            <tr>
+                <td>{{ c[0] }}</td>
+                <td>{{ c[1] }}</td>
+                <td>{{ c[2] }}</td>
+                <td>{{ c[3] }}</td>
+                <td>{{ c[4] or '' }}</td>
+                <td>{{ c[5] or '' }}</td>
+                <td>{% if c[6] %}{{ c[6] }} {{ c[7] }}{% endif %}</td>
+                <td>
+                    <a href="{{ url_for('edit_contractor', contractor_id=c[0]) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ url_for('delete_contractor', contractor_id=c[0]) }}" method="post" style="display:inline-block;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this contractor?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>{{ action }} Employee</h1>
+    <form method="post">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" required value="{{ employee[0] if employee else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" required value="{{ employee[1] if employee else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="personal_email" class="form-label">Personal Email</label>
+                    <input type="email" class="form-control" id="personal_email" name="personal_email" required value="{{ employee[2] if employee else '' }}">
+                </div>
+                {% if action == 'Edit' %}
+                <div class="mb-3">
+                    <label for="org_email" class="form-label">Org Email</label>
+                    <input type="email" class="form-control" id="org_email" name="org_email" value="{{ employee[3] if employee and employee[3] is not none else '' }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" value="{{ employee[4] if employee and employee[4] is not none else '' }}" readonly>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <label for="id_number" class="form-label">ID Number</label>
+                    <input type="text" class="form-control" id="id_number" name="id_number" value="{{ employee[5] if employee else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="tax_id" class="form-label">Tax ID</label>
+                    <input type="text" class="form-control" id="tax_id" name="tax_id" value="{{ employee[6] if employee else '' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required value="{{ employee[7] if employee else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ employee[8] if employee else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="position_id" class="form-label">Position</label>
+                    <select class="form-select" id="position_id" name="position_id">
+                        <option value="">-- None --</option>
+                        {% for pos in positions %}
+                            <option value="{{ pos[0] }}" {% if employee and employee[9] == pos[0] %}selected{% endif %}>{{ pos[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="manager_id" class="form-label">Manager</label>
+                    <select class="form-select" id="manager_id" name="manager_id">
+                        <option value="">-- None --</option>
+                        {% for mgr in managers %}
+                            <option value="{{ mgr[0] }}" {% if employee and employee[10] == mgr[0] %}selected{% endif %}>{{ mgr[1] }} {{ mgr[2] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">{{ action }}</button>
+        <a href="{{ url_for('employees') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}
