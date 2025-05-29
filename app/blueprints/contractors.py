@@ -27,8 +27,6 @@ def add_contractor():
             first_name=data['first_name'],
             last_name=data['last_name'],
             personal_email=data['personal_email'],
-            org_email=data.get('org_email'),
-            username=data.get('username'),
             id_number=data.get('id_number'),
             tax_id=data['tax_id'],
             start_date=data['start_date'],

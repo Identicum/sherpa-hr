@@ -17,14 +17,6 @@
                     <input type="email" class="form-control" id="personal_email" name="personal_email" required value="{{ contractor[2] if contractor else '' }}">
                 </div>
                 <div class="mb-3">
-                    <label for="org_email" class="form-label">Org Email</label>
-                    <input type="email" class="form-control" id="org_email" name="org_email" value="{{ contractor[3] if contractor and contractor[3] is not none else '' }}">
-                </div>
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" value="{{ contractor[4] if contractor and contractor[4] is not none else '' }}">
-                </div>
-                <div class="mb-3">
                     <label for="id_number" class="form-label">ID Number</label>
                     <input type="text" class="form-control" id="id_number" name="id_number" value="{{ contractor[5] if contractor else '' }}">
                 </div>
