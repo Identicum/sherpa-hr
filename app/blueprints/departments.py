@@ -1,7 +1,19 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from models import db, Department, Position, Contractor
 
 departments_bp = Blueprint('departments', __name__)
+
+@departments_bp.route('/api/departments', methods=['GET'])
+def api_list():
+    departments = Department.query.order_by(Department.department_id).all()
+    departments_data = []
+    for dept in departments:
+        departments_data.append({
+            'department_id': dept.department_id,
+            'name': dept.name,
+            'description': dept.description
+        })
+    return jsonify(departments_data)
 
 @departments_bp.route('/departments')
 def list():

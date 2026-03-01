@@ -1,13 +1,41 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models import db, Contractor, Employee, Position
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from models import db, Contractor, Department, Employee, Position
 from sqlalchemy.orm import aliased
 
 employees_bp = Blueprint('employees', __name__)
 
+@employees_bp.route('/api/employees', methods=['GET'])
+def api_list():
+    Manager = aliased(Employee)
+    employees = db.session.query(Employee, Position, Department, Manager).\
+        outerjoin(Position, Employee.position_id == Position.position_id).\
+        outerjoin(Department, Position.department_id == Department.department_id).\
+        outerjoin(Manager, Employee.manager_id == Manager.employee_id).\
+        order_by(Employee.employee_id).all()
+    employees_data = []
+    for emp, position, department, manager in employees:
+        employees_data.append({
+            'employee_id': emp.employee_id,
+            'first_name': emp.first_name,
+            'last_name': emp.last_name,
+            'personal_email': emp.personal_email,
+            'org_email': emp.org_email,
+            'username': emp.username,
+            'id_number': emp.id_number,
+            'tax_id': emp.tax_id,
+            'start_date': emp.start_date.isoformat() if emp.start_date else None,
+            'end_date': emp.end_date.isoformat() if emp.end_date else None,
+            'position_id': position.position_id if position else None,
+            'title': position.title if position else None,
+            'department_id': department.department_id if department else None,
+            'department_name': department.name if department else None,
+            'manager_id': manager.employee_id if manager else None
+        })
+    return jsonify(employees_data)
+
 @employees_bp.route('/employees')
 def list():
     Manager = aliased(Employee)
-    from models import Department
     employees = db.session.query(Employee, Position, Department, Manager).\
         outerjoin(Position, Employee.position_id == Position.position_id).\
         outerjoin(Department, Position.department_id == Department.department_id).\

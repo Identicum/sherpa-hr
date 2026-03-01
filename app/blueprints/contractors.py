@@ -1,7 +1,33 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from models import db, Department, Employee, Contractor
 
 contractors_bp = Blueprint('contractors', __name__)
+
+@contractors_bp.route('/api/contractors', methods=['GET'])
+def api_list():
+    contractors = db.session.query(Contractor, Department, Employee).\
+        outerjoin(Department, Contractor.department_id == Department.department_id).\
+        outerjoin(Employee, Contractor.manager_id == Employee.employee_id).\
+        order_by(Contractor.contractor_id).all()
+    contractors_data = []
+    for contractor, department, manager in contractors:
+        contractors_data.append({
+            'contractor_id': contractor.contractor_id,
+            'first_name': contractor.first_name,
+            'last_name': contractor.last_name,
+            'personal_email': contractor.personal_email,
+            'org_email': contractor.org_email,
+            'username': contractor.username,
+            'id_number': contractor.id_number,
+            'tax_id': contractor.tax_id,
+            'start_date': contractor.start_date.isoformat() if contractor.start_date else None,
+            'end_date': contractor.end_date.isoformat() if contractor.end_date else None,
+            'company_name': contractor.company_name,
+            'department_id': department.department_id if department else None,
+            'department_name': department.name if department else None,
+            'manager_id': manager.employee_id if manager else None
+        })
+    return jsonify(contractors_data)
 
 @contractors_bp.route('/contractors')
 def list():

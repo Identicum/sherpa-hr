@@ -1,7 +1,21 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from models import db, Department, Employee, Position
 
 positions_bp = Blueprint('positions', __name__)
+
+@positions_bp.route('/api/positions', methods=['GET'])
+def api_list():
+    positions = Position.query.outerjoin(Department).add_entity(Department).order_by(Position.position_id).all()
+    positions_data = []
+    for pos, dept in positions:
+        positions_data.append({
+            'position_id': pos.position_id,
+            'title': pos.title,
+            'description': pos.description,
+            'department_id': dept.department_id if dept else None,
+            'department_name': dept.name if dept else None
+        })
+    return jsonify(positions_data)
 
 @positions_bp.route('/positions')
 def list():
