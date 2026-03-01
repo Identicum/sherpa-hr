@@ -33,6 +33,21 @@ def api_list():
         })
     return jsonify(employees_data)
 
+@employees_bp.route('/api/employees/<int:employee_id>', methods=['PATCH'])
+def api_update(employee_id):
+    emp = Employee.query.get_or_404(employee_id)
+    data = request.get_json()
+    if 'org_email' in data:
+        emp.org_email = data['org_email']
+    if 'username' in data:
+        emp.username = data['username']
+    db.session.commit()
+    return jsonify({
+        'employee_id': emp.employee_id,
+        'org_email': emp.org_email,
+        'username': emp.username
+    })
+
 @employees_bp.route('/employees')
 def list():
     Manager = aliased(Employee)

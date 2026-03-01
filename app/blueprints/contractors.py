@@ -29,6 +29,21 @@ def api_list():
         })
     return jsonify(contractors_data)
 
+@contractors_bp.route('/api/contractors/<int:contractor_id>', methods=['PATCH'])
+def api_update(contractor_id):
+    contractor = Contractor.query.get_or_404(contractor_id)
+    data = request.get_json()
+    if 'org_email' in data:
+        contractor.org_email = data['org_email']
+    if 'username' in data:
+        contractor.username = data['username']
+    db.session.commit()
+    return jsonify({
+        'contractor_id': contractor.contractor_id,
+        'org_email': contractor.org_email,
+        'username': contractor.username
+    })
+
 @contractors_bp.route('/contractors')
 def list():
     contractors = db.session.query(Contractor, Department, Employee).\
