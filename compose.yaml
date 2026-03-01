@@ -1,7 +1,9 @@
+name: sherpa-hr
+
 services:
     db:
         container_name: db
-        image: ghcr.io/identicum/postgres:15
+        image: ghcr.io/identicum/postgres:16
         pull_policy: always
         restart: always
         ports:
@@ -10,10 +12,11 @@ services:
             POSTGRES_PASSWORD: identicum
         volumes:
             - ./db/:/docker-entrypoint-initdb.d/:ro
+
     hr:
         container_name: hr
         image: ghcr.io/identicum/sherpa-hr:latest
-        # pull_policy: always
+        pull_policy: always
         restart: always
         ports:
             - 80:5000
