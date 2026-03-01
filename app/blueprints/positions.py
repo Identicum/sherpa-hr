@@ -4,12 +4,12 @@ from models import db, Department, Position
 positions_bp = Blueprint('positions', __name__)
 
 @positions_bp.route('/positions')
-def positions():
+def list():
     positions = Position.query.outerjoin(Department).add_entity(Department).order_by(Position.position_id).all()
     return render_template('positions.html', positions=[(p.position_id, p.title, p.description, d.name if d else None) for p, d in positions])
 
 @positions_bp.route('/positions/add', methods=['GET', 'POST'])
-def add_position():
+def add():
     departments = Department.query.order_by(Department.name).all()
     if request.method == 'POST':
         title = request.form['title']
@@ -19,11 +19,11 @@ def add_position():
         db.session.add(pos)
         db.session.commit()
         flash('Position added!')
-        return redirect(url_for('positions.positions'))
+        return redirect(url_for('positions.list'))
     return render_template('position_form.html', action='Add', departments=[(d.department_id, d.name) for d in departments])
 
 @positions_bp.route('/positions/edit/<int:position_id>', methods=['GET', 'POST'])
-def edit_position(position_id):
+def update(position_id):
     pos = Position.query.get_or_404(position_id)
     departments = Department.query.order_by(Department.name).all()
     if request.method == 'POST':
@@ -32,14 +32,14 @@ def edit_position(position_id):
         pos.department_id = request.form['department_id'] or None
         db.session.commit()
         flash('Position updated!')
-        return redirect(url_for('positions.positions'))
+        return redirect(url_for('positions.list'))
     position = (pos.title, pos.description, pos.department_id)
-    return render_template('position_form.html', action='Edit', position=position, position_id=position_id, departments=[(d.department_id, d.name) for d in departments])
+    return render_template('position_form.html', action='Update', position=position, position_id=position_id, departments=[(d.department_id, d.name) for d in departments])
 
 @positions_bp.route('/positions/delete/<int:position_id>', methods=['POST'])
-def delete_position(position_id):
+def delete(position_id):
     pos = Position.query.get_or_404(position_id)
     db.session.delete(pos)
     db.session.commit()
     flash('Position deleted!')
-    return redirect(url_for('positions.positions'))
+    return redirect(url_for('positions.list'))

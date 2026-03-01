@@ -5,7 +5,7 @@ from sqlalchemy.orm import aliased
 employees_bp = Blueprint('employees', __name__)
 
 @employees_bp.route('/employees')
-def employees():
+def list():
     Manager = aliased(Employee)
     from models import Department
     employees = db.session.query(Employee, Position, Department, Manager).\
@@ -24,7 +24,7 @@ def employees():
     return render_template('employees.html', employees=[emp_row(*row) for row in employees])
 
 @employees_bp.route('/employees/add', methods=['GET', 'POST'])
-def add_employee():
+def add():
     positions = Position.query.order_by(Position.title).all()
     managers = Employee.query.order_by(Employee.first_name, Employee.last_name).all()
     if request.method == 'POST':
@@ -45,11 +45,11 @@ def add_employee():
         db.session.add(emp)
         db.session.commit()
         flash('Employee added!')
-        return redirect(url_for('employees.employees'))
+        return redirect(url_for('employees.list'))
     return render_template('employee_form.html', action='Add', positions=[(p.position_id, p.title) for p in positions], managers=[(m.employee_id, m.first_name, m.last_name) for m in managers])
 
 @employees_bp.route('/employees/edit/<int:employee_id>', methods=['GET', 'POST'])
-def edit_employee(employee_id):
+def update(employee_id):
     emp = Employee.query.get_or_404(employee_id)
     positions = Position.query.order_by(Position.title).all()
     managers = Employee.query.filter(Employee.employee_id != employee_id).order_by(Employee.first_name, Employee.last_name).all()
@@ -68,16 +68,16 @@ def edit_employee(employee_id):
         emp.manager_id = data.get('manager_id') or None
         db.session.commit()
         flash('Employee updated!')
-        return redirect(url_for('employees.employees'))
+        return redirect(url_for('employees.list'))
     employee = (
         emp.first_name, emp.last_name, emp.personal_email, emp.org_email, emp.username, emp.id_number, emp.tax_id, emp.start_date, emp.end_date, emp.position_id, emp.manager_id
     )
-    return render_template('employee_form.html', action='Edit', employee=employee, employee_id=employee_id, positions=[(p.position_id, p.title) for p in positions], managers=[(m.employee_id, m.first_name, m.last_name) for m in managers])
+    return render_template('employee_form.html', action='Update', employee=employee, employee_id=employee_id, positions=[(p.position_id, p.title) for p in positions], managers=[(m.employee_id, m.first_name, m.last_name) for m in managers])
 
 @employees_bp.route('/employees/delete/<int:employee_id>', methods=['POST'])
-def delete_employee(employee_id):
+def delete(employee_id):
     emp = Employee.query.get_or_404(employee_id)
     db.session.delete(emp)
     db.session.commit()
     flash('Employee deleted!')
-    return redirect(url_for('employees.employees'))
+    return redirect(url_for('employees.list'))
