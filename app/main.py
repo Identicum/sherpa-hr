@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 from models import db
 import config as config
 from blueprints.departments import departments_bp
@@ -17,6 +17,10 @@ app.register_blueprint(departments_bp)
 app.register_blueprint(positions_bp)
 app.register_blueprint(employees_bp)
 app.register_blueprint(contractors_bp)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/health')
 def getHealth():

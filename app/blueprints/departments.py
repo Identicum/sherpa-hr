@@ -3,7 +3,7 @@ from models import db, Department, Position, Contractor
 
 departments_bp = Blueprint('departments', __name__)
 
-@departments_bp.route('/')
+@departments_bp.route('/departments')
 def list():
     departments = Department.query.order_by(Department.department_id).all()
     return render_template('departments.html', departments=departments)
