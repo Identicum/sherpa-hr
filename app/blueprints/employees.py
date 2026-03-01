@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models import db, Position, Employee
+from models import db, Contractor, Employee, Position
 from sqlalchemy.orm import aliased
 
 employees_bp = Blueprint('employees', __name__)
@@ -77,6 +77,14 @@ def update(employee_id):
 @employees_bp.route('/employees/delete/<int:employee_id>', methods=['POST'])
 def delete(employee_id):
     emp = Employee.query.get_or_404(employee_id)
+    subordinate_count = Employee.query.filter_by(manager_id=employee_id).count()
+    if subordinate_count > 0:
+        flash('Cannot delete employee: it has subordinates.')
+        return redirect(url_for('employees.list'))
+    contractor_count = Contractor.query.filter_by(manager_id=employee_id).count()
+    if contractor_count > 0:
+        flash('Cannot delete employee: it has assigned contractors.')
+        return redirect(url_for('employees.list'))
     db.session.delete(emp)
     db.session.commit()
     flash('Employee deleted!')

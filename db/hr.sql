@@ -32,7 +32,7 @@ CREATE TABLE position (
     position_id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    department_id INT REFERENCES department(department_id),
+    department_id INT REFERENCES department(department_id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -48,8 +48,8 @@ CREATE TABLE employee (
     tax_id VARCHAR(15) UNIQUE NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE,
-    position_id INT REFERENCES position(position_id),
-    manager_id INT REFERENCES employee(employee_id),
+    position_id INT REFERENCES position(position_id) ON DELETE RESTRICT,
+    manager_id INT REFERENCES employee(employee_id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -66,8 +66,8 @@ CREATE TABLE contractor (
     start_date DATE NOT NULL,
     end_date DATE,
     company_name VARCHAR(100),
-    department_id INT REFERENCES department(department_id),
-    manager_id INT REFERENCES employee(employee_id),
+    department_id INT REFERENCES department(department_id) ON DELETE RESTRICT,
+    manager_id INT REFERENCES employee(employee_id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

@@ -15,7 +15,7 @@ class Position(db.Model):
     position_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
-    department_id = db.Column(db.Integer, db.ForeignKey('department.department_id'))
+    department_id = db.Column(db.Integer, db.ForeignKey('department.department_id', ondelete='RESTRICT'))
     employees = db.relationship('Employee', backref='position', lazy=True)
 
 class Employee(db.Model):
@@ -30,8 +30,8 @@ class Employee(db.Model):
     tax_id = db.Column(db.String(15), unique=True, nullable=False)
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
-    position_id = db.Column(db.Integer, db.ForeignKey('position.position_id'))
-    manager_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'))
+    position_id = db.Column(db.Integer, db.ForeignKey('position.position_id', ondelete='RESTRICT'))
+    manager_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='RESTRICT'))
     subordinates = db.relationship('Employee', backref=db.backref('manager', remote_side=[employee_id]), lazy=True)
     contractors = db.relationship('Contractor', backref='manager', lazy=True, foreign_keys='Contractor.manager_id')
 
@@ -48,5 +48,5 @@ class Contractor(db.Model):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     company_name = db.Column(db.String(100))
-    department_id = db.Column(db.Integer, db.ForeignKey('department.department_id'))
-    manager_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'))
+    department_id = db.Column(db.Integer, db.ForeignKey('department.department_id', ondelete='RESTRICT'))
+    manager_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='RESTRICT'))

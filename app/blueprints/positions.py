@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models import db, Department, Position
+from models import db, Department, Employee, Position
 
 positions_bp = Blueprint('positions', __name__)
 
@@ -39,6 +39,10 @@ def update(position_id):
 @positions_bp.route('/positions/delete/<int:position_id>', methods=['POST'])
 def delete(position_id):
     pos = Position.query.get_or_404(position_id)
+    employee_count = Employee.query.filter_by(position_id=position_id).count()
+    if employee_count > 0:
+        flash('Cannot delete position: it has related employees.')
+        return redirect(url_for('positions.list'))
     db.session.delete(pos)
     db.session.commit()
     flash('Position deleted!')
