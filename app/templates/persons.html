@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Persons</h1>
+    <a href="{{ url_for('persons.add') }}" class="btn btn-primary mb-3">Add Person</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Personal Email</th>
+                <th>Org Email</th>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in persons %}
+            <tr>
+                <td>{{ person.person_id }}</td>
+                <td>{{ person.first_name }}</td>
+                <td>{{ person.last_name }}</td>
+                <td>{{ person.personal_email }}</td>
+                <td>{{ person.org_email or '-' }}</td>
+                <td>{{ person.username or '-' }}</td>
+                <td>
+                    <a href="{{ url_for('persons.update', person_id=person.person_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="post" action="{{ url_for('persons.delete', person_id=person.person_id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
