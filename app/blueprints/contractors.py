@@ -1,139 +1,33 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from models import db, Department, Employee, Contractor
+from models import db, Department, Employee, Contractor, Person
 
 contractors_bp = Blueprint('contractors', __name__)
 
-@contractors_bp.route('/api/contractors', methods=['GET'])
-def api_list():
-    """
-    Get all contractors
-    ---
-    tags:
-      - Contractors
-    responses:
-      200:
-        description: List of all contractors
-        schema:
-          type: array
-          items:
-            properties:
-              contractor_id:
-                type: integer
-              first_name:
-                type: string
-              last_name:
-                type: string
-              personal_email:
-                type: string
-              org_email:
-                type: string
-              username:
-                type: string
-              id_number:
-                type: string
-              tax_id:
-                type: string
-              start_date:
-                type: string
-              end_date:
-                type: string
-              company_name:
-                type: string
-              department_id:
-                type: integer
-              department_name:
-                type: string
-              manager_id:
-                type: integer
-    """
-    contractors = db.session.query(Contractor, Department, Employee).\
-        outerjoin(Department, Contractor.department_id == Department.department_id).\
-        outerjoin(Employee, Contractor.manager_id == Employee.employee_id).\
-        order_by(Contractor.contractor_id).all()
-    contractors_data = []
-    for contractor, department, manager in contractors:
-        contractors_data.append({
-            'contractor_id': contractor.contractor_id,
-            'first_name': contractor.first_name,
-            'last_name': contractor.last_name,
-            'personal_email': contractor.personal_email,
-            'org_email': contractor.org_email,
-            'username': contractor.username,
-            'id_number': contractor.id_number,
-            'tax_id': contractor.tax_id,
-            'start_date': contractor.start_date.isoformat() if contractor.start_date else None,
-            'end_date': contractor.end_date.isoformat() if contractor.end_date else None,
-            'company_name': contractor.company_name,
-            'department_id': department.department_id if department else None,
-            'department_name': department.name if department else None,
-            'manager_id': manager.employee_id if manager else None
-        })
-    return jsonify(contractors_data)
-
-@contractors_bp.route('/api/contractors/<int:contractor_id>', methods=['PATCH'])
-def api_update(contractor_id):
-    """
-    Update contractor org_email and username
-    ---
-    tags:
-      - Contractors
-    parameters:
-      - name: contractor_id
-        in: path
-        type: integer
-        required: true
-      - name: body
-        in: body
-        required: true
-        schema:
-          properties:
-            org_email:
-              type: string
-            username:
-              type: string
-    responses:
-      200:
-        description: Updated contractor details
-    """
-    contractor = Contractor.query.get_or_404(contractor_id)
-    data = request.get_json()
-    if 'org_email' in data:
-        contractor.org_email = data['org_email']
-    if 'username' in data:
-        contractor.username = data['username']
-    db.session.commit()
-    return jsonify({
-        'contractor_id': contractor.contractor_id,
-        'org_email': contractor.org_email,
-        'username': contractor.username
-    })
-
 @contractors_bp.route('/contractors')
 def list():
-    contractors = db.session.query(Contractor, Department, Employee).\
+    contractors = db.session.query(Contractor, Person, Department).\
+        join(Person, Contractor.person_id == Person.person_id).\
         outerjoin(Department, Contractor.department_id == Department.department_id).\
-        outerjoin(Employee, Contractor.manager_id == Employee.employee_id).\
         order_by(Contractor.contractor_id).all()
-    def contractor_row(c, d, m):
+    def contractor_row(c, p, d):
         return (
-            c.contractor_id, c.first_name, c.last_name, c.personal_email, c.company_name,
-            d.name if d else '',
-            (m.first_name if m else None), (m.last_name if m else None)
+            c.contractor_id,
+            p.first_name,
+            p.last_name,
+            c.company_name,
+            d.name if d else ''
         )
     return render_template('contractors.html', contractors=[contractor_row(*row) for row in contractors])
 
 @contractors_bp.route('/contractors/add', methods=['GET', 'POST'])
 def add():
+    persons = Person.query.order_by(Person.last_name, Person.first_name).all()
     departments = Department.query.order_by(Department.name).all()
-    managers = Employee.query.order_by(Employee.first_name, Employee.last_name).all()
+    managers = Person.query.order_by(Person.last_name, Person.first_name).all()
     if request.method == 'POST':
         data = request.form
         contractor = Contractor(
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            personal_email=data['personal_email'],
-            id_number=data.get('id_number'),
-            tax_id=data['tax_id'],
+            person_id=data['person_id'],
             start_date=data['start_date'],
             end_date=data.get('end_date') or None,
             company_name=data.get('company_name'),
@@ -144,22 +38,15 @@ def add():
         db.session.commit()
         flash('Contractor added!')
         return redirect(url_for('contractors.list'))
-    return render_template('contractor_form.html', action='Add', departments=[(d.department_id, d.name) for d in departments], managers=[(m.employee_id, m.first_name, m.last_name) for m in managers])
+    return render_template('contractor_form.html', action='Add', persons=[(p.person_id, p.first_name, p.last_name) for p in persons], departments=[(d.department_id, d.name) for d in departments], managers=[(p.person_id, p.first_name, p.last_name) for p in managers if p])
 
 @contractors_bp.route('/contractors/edit/<int:contractor_id>', methods=['GET', 'POST'])
 def update(contractor_id):
     contractor = Contractor.query.get_or_404(contractor_id)
     departments = Department.query.order_by(Department.name).all()
-    managers = Employee.query.order_by(Employee.first_name, Employee.last_name).all()
+    managers = Person.query.order_by(Person.last_name, Person.first_name).all()
     if request.method == 'POST':
         data = request.form
-        contractor.first_name = data['first_name']
-        contractor.last_name = data['last_name']
-        contractor.personal_email = data['personal_email']
-        contractor.org_email = data.get('org_email')
-        contractor.username = data.get('username')
-        contractor.id_number = data.get('id_number')
-        contractor.tax_id = data['tax_id']
         contractor.start_date = data['start_date']
         contractor.end_date = data.get('end_date') or None
         contractor.company_name = data.get('company_name')
@@ -168,10 +55,7 @@ def update(contractor_id):
         db.session.commit()
         flash('Contractor updated!')
         return redirect(url_for('contractors.list'))
-    contractor_data = (
-        contractor.first_name, contractor.last_name, contractor.personal_email, contractor.org_email, contractor.username, contractor.id_number, contractor.tax_id, contractor.start_date, contractor.end_date, contractor.company_name, contractor.department_id, contractor.manager_id
-    )
-    return render_template('contractor_form.html', action='Update', contractor=contractor_data, contractor_id=contractor_id, departments=[(d.department_id, d.name) for d in departments], managers=[(m.employee_id, m.first_name, m.last_name) for m in managers])
+    return render_template('contractor_form.html', action='Update', contractor=contractor, contractor_id=contractor_id, departments=[(d.department_id, d.name) for d in departments], managers=[(p.person_id, p.first_name, p.last_name) for p in managers if p])
 
 @contractors_bp.route('/contractors/delete/<int:contractor_id>', methods=['POST'])
 def delete(contractor_id):

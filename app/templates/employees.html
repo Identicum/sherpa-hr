@@ -13,10 +13,8 @@
                 <th>ID</th>
                 <th>First Name</th>
                 <th>Last Name</th>
-                <th>Email</th>
                 <th>Position</th>
                 <th>Department</th>
-                <th>Manager</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -26,10 +24,8 @@
                 <td>{{ emp[0] }}</td>
                 <td>{{ emp[1] }}</td>
                 <td>{{ emp[2] }}</td>
-                <td>{{ emp[3] }}</td>
+                <td>{{ emp[3] or '' }}</td>
                 <td>{{ emp[4] or '' }}</td>
-                <td>{{ emp[5] or '' }}</td>
-                <td>{% if emp[6] %}{{ emp[6] }} {{ emp[7] }}{% endif %}</td>
                 <td>
                     <a href="{{ url_for('employees.update', employee_id=emp[0]) }}" class="btn btn-sm btn-warning">Edit</a>
                     <form action="{{ url_for('employees.delete', employee_id=emp[0]) }}" method="post" style="display:inline-block;">
