@@ -73,6 +73,33 @@ CREATE TABLE contractor (
 );
 
 -- --------------------------------------------------------------
+-- VIEWS
+
+CREATE OR REPLACE VIEW vw_employee AS
+SELECT
+    e.*,
+    p.title AS position_name,
+    d.name AS department_name,
+    CASE
+        WHEN e.start_date <= CURRENT_DATE AND (e.end_date IS NULL OR e.end_date >= CURRENT_DATE) THEN 'A'
+        ELSE 'I'
+    END AS status
+FROM employee e
+LEFT JOIN position p ON e.position_id = p.position_id
+LEFT JOIN department d ON p.department_id = d.department_id;
+
+CREATE OR REPLACE VIEW vw_contractor AS
+SELECT
+    c.*,
+    d.name AS department_name,
+    CASE
+        WHEN c.start_date <= CURRENT_DATE AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE) THEN 'A'
+        ELSE 'I'
+    END AS status
+FROM contractor c
+LEFT JOIN department d ON c.department_id = d.department_id;
+
+-- --------------------------------------------------------------
 -- PERMISSIONS
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO hrusr;
