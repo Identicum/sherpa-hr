@@ -6,6 +6,15 @@ employees_bp = Blueprint('employees', __name__)
 
 @employees_bp.route('/api/employees', methods=['GET'])
 def api_list():
+    """
+    Get all employees
+    ---
+    tags:
+      - Employees
+    responses:
+      200:
+        description: List of all employees
+    """
     Manager = aliased(Employee)
     employees = db.session.query(Employee, Position, Department, Manager).\
         outerjoin(Position, Employee.position_id == Position.position_id).\
@@ -35,6 +44,29 @@ def api_list():
 
 @employees_bp.route('/api/employees/<int:employee_id>', methods=['PATCH'])
 def api_update(employee_id):
+    """
+    Update employee org_email and username
+    ---
+    tags:
+      - Employees
+    parameters:
+      - name: employee_id
+        in: path
+        type: integer
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          properties:
+            org_email:
+              type: string
+            username:
+              type: string
+    responses:
+      200:
+        description: Updated employee details
+    """
     emp = Employee.query.get_or_404(employee_id)
     data = request.get_json()
     if 'org_email' in data:

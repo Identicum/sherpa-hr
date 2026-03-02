@@ -5,6 +5,15 @@ positions_bp = Blueprint('positions', __name__)
 
 @positions_bp.route('/api/positions', methods=['GET'])
 def api_list():
+    """
+    Get all positions
+    ---
+    tags:
+      - Positions
+    responses:
+      200:
+        description: List of all positions
+    """
     positions = Position.query.outerjoin(Department).add_entity(Department).order_by(Position.position_id).all()
     positions_data = []
     for pos, dept in positions:

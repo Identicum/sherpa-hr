@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template
+from flasgger import Flasgger
 from models import db
 import config as config
 from blueprints.departments import departments_bp
@@ -11,6 +12,7 @@ app = Flask(__name__)
 app.config.from_object(config)
 app.secret_key = app.config.get('SECRET_KEY', 'supersecretkey')
 db.init_app(app)
+swagger = Flasgger(app)
 
 # Register blueprints
 app.register_blueprint(departments_bp)

@@ -5,6 +5,15 @@ departments_bp = Blueprint('departments', __name__)
 
 @departments_bp.route('/api/departments', methods=['GET'])
 def api_list():
+    """
+    Get all departments
+    ---
+    tags:
+      - Departments
+    responses:
+      200:
+        description: List of all departments
+    """
     departments = Department.query.order_by(Department.department_id).all()
     departments_data = []
     for dept in departments:

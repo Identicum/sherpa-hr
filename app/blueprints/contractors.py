@@ -5,6 +5,47 @@ contractors_bp = Blueprint('contractors', __name__)
 
 @contractors_bp.route('/api/contractors', methods=['GET'])
 def api_list():
+    """
+    Get all contractors
+    ---
+    tags:
+      - Contractors
+    responses:
+      200:
+        description: List of all contractors
+        schema:
+          type: array
+          items:
+            properties:
+              contractor_id:
+                type: integer
+              first_name:
+                type: string
+              last_name:
+                type: string
+              personal_email:
+                type: string
+              org_email:
+                type: string
+              username:
+                type: string
+              id_number:
+                type: string
+              tax_id:
+                type: string
+              start_date:
+                type: string
+              end_date:
+                type: string
+              company_name:
+                type: string
+              department_id:
+                type: integer
+              department_name:
+                type: string
+              manager_id:
+                type: integer
+    """
     contractors = db.session.query(Contractor, Department, Employee).\
         outerjoin(Department, Contractor.department_id == Department.department_id).\
         outerjoin(Employee, Contractor.manager_id == Employee.employee_id).\
@@ -31,6 +72,29 @@ def api_list():
 
 @contractors_bp.route('/api/contractors/<int:contractor_id>', methods=['PATCH'])
 def api_update(contractor_id):
+    """
+    Update contractor org_email and username
+    ---
+    tags:
+      - Contractors
+    parameters:
+      - name: contractor_id
+        in: path
+        type: integer
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          properties:
+            org_email:
+              type: string
+            username:
+              type: string
+    responses:
+      200:
+        description: Updated contractor details
+    """
     contractor = Contractor.query.get_or_404(contractor_id)
     data = request.get_json()
     if 'org_email' in data:
