@@ -1,11 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
     <h1>Positions</h1>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-info">{{ messages[0] }}</div>
-      {% endif %}
-    {% endwith %}
     <a href="{{ url_for('positions.add') }}" class="btn btn-primary mb-3">Add Position</a>
     <table class="table table-bordered">
         <thead>

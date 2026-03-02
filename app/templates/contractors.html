@@ -1,11 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
     <h1>Contractors</h1>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-info">{{ messages[0] }}</div>
-      {% endif %}
-    {% endwith %}
     <a href="{{ url_for('contractors.add') }}" class="btn btn-primary mb-3">Add Contractor</a>
     <table class="table table-bordered">
         <thead>

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from models import db, Contractor, Department, Employee, Position, Person
 
 employees_bp = Blueprint('employees', __name__)
@@ -27,8 +27,20 @@ def add():
     managers = Person.query.order_by(Person.last_name, Person.first_name).all()
     if request.method == 'POST':
         data = request.form
+        person_id = data['person_id']
+        current_app.logger.debug("Attempting to add employee for person_id: %s", person_id)
+        active_employee = Employee.query.filter_by(person_id=person_id).filter(Employee.end_date.is_(None)).first()
+        if active_employee:
+            current_app.logger.warn("Cannot add employee: this person already has an active employee.")
+            flash('Cannot add employee: this person already has an active employee.')
+            return redirect(url_for('employees.add'))
+        active_contractor = Contractor.query.filter_by(person_id=person_id).filter(Contractor.end_date.is_(None)).first()
+        if active_contractor:
+            current_app.logger.warn("Cannot add employee: this person already has an active contractor.")
+            flash('Cannot add employee: this person already has an active contractor.')
+            return redirect(url_for('employees.add'))
         emp = Employee(
-            person_id=data['person_id'],
+            person_id=person_id,
             start_date=data['start_date'],
             end_date=data.get('end_date') or None,
             position_id=data.get('position_id') or None,

@@ -21,6 +21,7 @@ services:
         ports:
             - 80:5000
         environment:
+            LOG_LEVEL: DEBUG
             POSTGRES_DB: hrdb
             POSTGRES_USER: hrusr
             POSTGRES_PASSWORD: hrpwd
