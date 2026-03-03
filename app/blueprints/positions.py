@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, abort
+from flask import abort, Blueprint, current_app, flash, jsonify, render_template, request, redirect, url_for
 from models import db, Department, Employee, Position
+from schemas import PositionSchema
 
 positions_bp = Blueprint('positions', __name__)
 
@@ -28,7 +29,7 @@ def api_list():
             'department_id': dept.id if dept else None,
             'department_name': dept.name if dept else None
         })
-    from schemas import PositionSchema
+    current_app.logger.debug("Returning list of {} positions", len(positions_data))
     return jsonify(PositionSchema(many=True).dump(positions_data))
 
 @positions_bp.route('/api/positions/<int:position_id>', methods=['GET'])
@@ -53,6 +54,7 @@ def api_get(position_id):
     """
     pos = Position.query.outerjoin(Department).add_entity(Department).filter(Position.id == position_id).first()
     if pos is None:
+        current_app.logger.debug("Position with id: {} not found", position_id)
         abort(404)
     position_obj, dept_obj = pos
     position_data = {
@@ -62,7 +64,7 @@ def api_get(position_id):
         'department_id': dept_obj.id if dept_obj else None,
         'department_name': dept_obj.name if dept_obj else None
     }
-    from schemas import PositionSchema
+    current_app.logger.debug("Returning position data for id: {}", position_id)
     return jsonify(PositionSchema().dump(position_data))
 
 @positions_bp.route('/positions')

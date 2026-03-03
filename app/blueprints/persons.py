@@ -1,6 +1,7 @@
-from flask import abort, Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from sqlalchemy import text
+from flask import abort, Blueprint, current_app, flash, jsonify, render_template, request, redirect, url_for
 from models import db, Person
+from sqlalchemy import text
+from schemas import PersonSchema
 
 persons_bp = Blueprint('persons', __name__)
 
@@ -27,7 +28,7 @@ def api_list():
     for row in result.fetchall():
         rowmap = dict(row._mapping)
         persons_data.append(rowmap)
-    from schemas import PersonSchema
+    current_app.logger.debug("Returning list of {} persons", len(persons_data))
     return jsonify(PersonSchema(many=True).dump(persons_data))
 
 @persons_bp.route('/api/persons/<int:person_id>', methods=['GET'])
@@ -53,9 +54,10 @@ def api_get(person_id):
     sql = text("SELECT * FROM vw_person WHERE id = :pid")
     row = db.session.execute(sql, {'pid': person_id}).fetchone()
     if row is None:
+        current_app.logger.debug("Person with id: {} not found", person_id)
         abort(404)
     rowmap = dict(row._mapping)
-    from schemas import PersonSchema
+    current_app.logger.debug("Returning person data for id: {}", person_id)
     return jsonify(PersonSchema().dump(rowmap))
 
 @persons_bp.route('/api/persons/<int:person_id>', methods=['PATCH'])
@@ -86,8 +88,10 @@ def api_update(person_id):
     person = Person.query.get_or_404(person_id)
     data = request.get_json()
     if 'org_email' in data:
+        current_app.logger.debug("Updating org_email for person id: {}", person_id)
         person.org_email = data['org_email']
     if 'username' in data:
+        current_app.logger.debug("Updating username for person id: {}", person_id)
         person.username = data['username']
     db.session.commit()
     return jsonify({

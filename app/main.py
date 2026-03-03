@@ -19,7 +19,8 @@ from sherpa.utils.basics import Logger
 
 app = Flask(__name__)
 log_level = os.environ.get("LOG_LEVEL", "")
-app.logger = Logger("edu-crud", log_level=log_level, log_path="/tmp/sherpa-hr.log")
+# log outputs to /tmp/python-flask.log, redirected to /dev/stdout in the parent image
+app.logger = Logger("sherpa-hr", log_level=log_level, log_path="/tmp/python-flask.log")
 app.logger.info("Logger initialized with level: {}.", log_level)
 app.config.from_object(config)
 app.secret_key = app.config.get('SECRET_KEY', 'supersecretkey')

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from models import db, Department, Position, Contractor
+from schemas import DepartmentSchema
 
 departments_bp = Blueprint('departments', __name__)
 
@@ -19,7 +20,6 @@ def api_list():
             $ref: '#/definitions/Department'
     """
     departments = Department.query.order_by(Department.id).all()
-    from schemas import DepartmentSchema
     result = DepartmentSchema(many=True).dump(departments)
     return jsonify(result)
 

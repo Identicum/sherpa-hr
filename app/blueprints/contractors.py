@@ -27,7 +27,7 @@ def add():
     if request.method == 'POST':
         data = request.form
         person_id = data['person']
-        current_app.logger.debug("Attempting to add contractor for person: %s", person_id)
+        current_app.logger.debug("Attempting to add contractor for person:{}", person_id)
         active_employee = Employee.query.filter_by(person=person_id).filter(Employee.end_date.is_(None)).first()
         if active_employee:
             current_app.logger.warn("Cannot add contractor: this person already has an active employee.")
