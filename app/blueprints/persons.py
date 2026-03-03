@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import abort, Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from sqlalchemy import text
 from models import db, Person
 
@@ -53,8 +53,6 @@ def api_get(person_id):
     sql = text("SELECT * FROM vw_person WHERE id = :pid")
     row = db.session.execute(sql, {'pid': person_id}).fetchone()
     if row is None:
-        # mimic get_or_404 behavior
-        from flask import abort
         abort(404)
     rowmap = dict(row._mapping)
     from schemas import PersonSchema

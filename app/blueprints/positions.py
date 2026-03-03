@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, abort
 from models import db, Department, Employee, Position
 
 positions_bp = Blueprint('positions', __name__)
@@ -30,6 +30,40 @@ def api_list():
         })
     from schemas import PositionSchema
     return jsonify(PositionSchema(many=True).dump(positions_data))
+
+@positions_bp.route('/api/positions/<int:position_id>', methods=['GET'])
+def api_get(position_id):
+    """
+    Get a specific position
+    ---
+    tags:
+      - Positions
+    parameters:
+      - name: position_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Position details
+        schema:
+          $ref: '#/definitions/Position'
+      404:
+        description: Position not found
+    """
+    pos = Position.query.outerjoin(Department).add_entity(Department).filter(Position.id == position_id).first()
+    if pos is None:
+        abort(404)
+    position_obj, dept_obj = pos
+    position_data = {
+        'id': position_obj.id,
+        'name': position_obj.name,
+        'description': position_obj.description,
+        'department_id': dept_obj.id if dept_obj else None,
+        'department_name': dept_obj.name if dept_obj else None
+    }
+    from schemas import PositionSchema
+    return jsonify(PositionSchema().dump(position_data))
 
 @positions_bp.route('/positions')
 def list():
