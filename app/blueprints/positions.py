@@ -13,6 +13,10 @@ def api_list():
     responses:
       200:
         description: List of all positions
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/Position'
     """
     positions = Position.query.outerjoin(Department).add_entity(Department).order_by(Position.id).all()
     positions_data = []
@@ -24,7 +28,8 @@ def api_list():
             'department_id': dept.id if dept else None,
             'department_name': dept.name if dept else None
         })
-    return jsonify(positions_data)
+    from schemas import PositionSchema
+    return jsonify(PositionSchema(many=True).dump(positions_data))
 
 @positions_bp.route('/positions')
 def list():

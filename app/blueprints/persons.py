@@ -14,6 +14,10 @@ def api_list():
     responses:
       200:
         description: List of all persons, including workforce_id, work_type, manager_id, start_date, end_date
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/Person'
     """
     # use the view to simplify the query and ensure consistency with vw_person
     sql = text("SELECT * FROM vw_person ORDER BY id")
@@ -23,7 +27,8 @@ def api_list():
     for row in result.fetchall():
         rowmap = dict(row._mapping)
         persons_data.append(rowmap)
-    return jsonify(persons_data)
+    from schemas import PersonSchema
+    return jsonify(PersonSchema(many=True).dump(persons_data))
 
 @persons_bp.route('/api/persons/<int:person_id>', methods=['GET'])
 def api_get(person_id):
@@ -40,6 +45,8 @@ def api_get(person_id):
     responses:
       200:
         description: Person details with workforce info
+        schema:
+          $ref: '#/definitions/Person'
       404:
         description: Person not found
     """
@@ -50,7 +57,8 @@ def api_get(person_id):
         from flask import abort
         abort(404)
     rowmap = dict(row._mapping)
-    return jsonify(rowmap)
+    from schemas import PersonSchema
+    return jsonify(PersonSchema().dump(rowmap))
 
 @persons_bp.route('/api/persons/<int:person_id>', methods=['PATCH'])
 def api_update(person_id):

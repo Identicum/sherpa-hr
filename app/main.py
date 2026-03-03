@@ -2,6 +2,13 @@ import os
 from flask import Flask, render_template
 from flasgger import Flasgger
 from models import db
+from schemas import (
+    DepartmentSchema,
+    PositionSchema,
+    PersonSchema,
+    EmployeeSchema,
+    ContractorSchema,
+)
 import config as config
 from blueprints.departments import departments_bp
 from blueprints.positions import positions_bp
@@ -17,7 +24,38 @@ app.logger.info("Logger initialized with level: {}.", log_level)
 app.config.from_object(config)
 app.secret_key = app.config.get('SECRET_KEY', 'supersecretkey')
 db.init_app(app)
-swagger = Flasgger(app)
+
+# helper to turn marshmallow schemas into simple swagger definitions
+from marshmallow import fields as _fields
+
+def _schema_def(schema_cls):
+    props = {}
+    for name, field in schema_cls().fields.items():
+        fmt = None
+        if isinstance(field, _fields.Int):
+            typ = 'integer'
+        elif isinstance(field, _fields.Str):
+            typ = 'string'
+        elif isinstance(field, _fields.Date):
+            typ = 'string'
+            fmt = 'date'
+        else:
+            typ = 'string'
+        entry = {'type': typ}
+        if fmt:
+            entry['format'] = fmt
+        props[name] = entry
+    return {'type': 'object', 'properties': props}
+
+swagger = Flasgger(app, template={
+    'definitions': {
+        'Department': _schema_def(DepartmentSchema),
+        'Position': _schema_def(PositionSchema),
+        'Person': _schema_def(PersonSchema),
+        'Employee': _schema_def(EmployeeSchema),
+        'Contractor': _schema_def(ContractorSchema),
+    }
+})
 
 # Register blueprints
 app.register_blueprint(departments_bp)

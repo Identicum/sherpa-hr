@@ -13,16 +13,15 @@ def api_list():
     responses:
       200:
         description: List of all departments
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/Department'
     """
     departments = Department.query.order_by(Department.id).all()
-    departments_data = []
-    for dept in departments:
-        departments_data.append({
-            'id': dept.id,
-            'name': dept.name,
-            'description': dept.description
-        })
-    return jsonify(departments_data)
+    from schemas import DepartmentSchema
+    result = DepartmentSchema(many=True).dump(departments)
+    return jsonify(result)
 
 @departments_bp.route('/departments')
 def list():
