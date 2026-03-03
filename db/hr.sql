@@ -21,7 +21,7 @@ $$ LANGUAGE plpgsql;
 -- TABLES
 
 CREATE TABLE department (
-    department_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -29,16 +29,16 @@ CREATE TABLE department (
 );
 
 CREATE TABLE position (
-    position_id SERIAL PRIMARY KEY,
-    title VARCHAR(100) NOT NULL UNIQUE,
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    department_id INT REFERENCES department(department_id) ON DELETE RESTRICT,
+    department INT REFERENCES department(id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE person (
-    person_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 10001),
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 10001),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     personal_email VARCHAR(100) UNIQUE NOT NULL,
@@ -51,24 +51,24 @@ CREATE TABLE person (
 );
 
 CREATE TABLE employee (
-    employee_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 20001),
-    person_id INT NOT NULL UNIQUE REFERENCES person(person_id) ON DELETE CASCADE,
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 20001),
+    person INT NOT NULL UNIQUE REFERENCES person(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE,
-    position_id INT REFERENCES position(position_id) ON DELETE RESTRICT,
-    manager_id INT REFERENCES person(person_id) ON DELETE SET NULL,
+    position INT REFERENCES position(id) ON DELETE RESTRICT,
+    manager INT REFERENCES person(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE contractor (
-    contractor_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 30001),
-    person_id INT NOT NULL UNIQUE REFERENCES person(person_id) ON DELETE CASCADE,
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 30001),
+    person INT NOT NULL UNIQUE REFERENCES person(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE,
     company_name VARCHAR(100),
-    department_id INT REFERENCES department(department_id) ON DELETE RESTRICT,
-    manager_id INT REFERENCES person(person_id) ON DELETE SET NULL,
+    department INT REFERENCES department(id) ON DELETE RESTRICT,
+    manager INT REFERENCES person(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -78,91 +78,91 @@ CREATE TABLE contractor (
 
 CREATE OR REPLACE VIEW vw_employee AS
 SELECT
-    e.employee_id,
-    e.person_id,
-    per.first_name,
-    per.last_name,
-    per.personal_email,
-    per.org_email,
-    per.username,
-    per.id_number,
-    per.tax_id,
-    e.start_date,
-    e.end_date,
-    e.position_id,
-    e.manager_id,
-    p.title AS position_name,
-    d.name AS department_name,
+    employee.id,
+    employee.person,
+    person.first_name,
+    person.last_name,
+    person.personal_email,
+    person.org_email,
+    person.username,
+    person.id_number,
+    person.tax_id,
+    employee.start_date,
+    employee.end_date,
+    employee.position,
+    employee.manager,
+    position.name AS position_name,
+    department.name AS department_name,
     CASE
-        WHEN e.start_date <= CURRENT_DATE AND (e.end_date IS NULL OR e.end_date >= CURRENT_DATE) THEN 'A'
+        WHEN employee.start_date <= CURRENT_DATE AND (employee.end_date IS NULL OR employee.end_date>=CURRENT_DATE) THEN 'A'
         ELSE 'I'
     END AS status
-FROM employee e
-JOIN person per ON e.person_id = per.person_id
-LEFT JOIN position p ON e.position_id = p.position_id
-LEFT JOIN department d ON p.department_id = d.department_id;
+FROM employee
+JOIN person ON employee.person=person.id
+LEFT JOIN position ON employee.position=position.id
+LEFT JOIN department ON position.department=department.id;
 
 CREATE OR REPLACE VIEW vw_contractor AS
 SELECT
-    c.contractor_id,
-    c.person_id,
-    per.first_name,
-    per.last_name,
-    per.personal_email,
-    per.org_email,
-    per.username,
-    per.id_number,
-    per.tax_id,
-    c.start_date,
-    c.end_date,
-    c.company_name,
-    c.department_id,
-    c.manager_id,
-    d.name AS department_name,
+    contractor.id,
+    contractor.person AS person,
+    person.first_name,
+    person.last_name,
+    person.personal_email,
+    person.org_email,
+    person.username,
+    person.id_number,
+    person.tax_id,
+    contractor.start_date,
+    contractor.end_date,
+    contractor.company_name,
+    contractor.department,
+    contractor.manager,
+    department.name AS department_name,
     CASE
-        WHEN c.start_date <= CURRENT_DATE AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE) THEN 'A'
+        WHEN contractor.start_date<=CURRENT_DATE AND (contractor.end_date IS NULL OR contractor.end_date>=CURRENT_DATE) THEN 'A'
         ELSE 'I'
     END AS status
-FROM contractor c
-JOIN person per ON c.person_id = per.person_id
-LEFT JOIN department d ON c.department_id = d.department_id;
+FROM contractor
+JOIN person ON contractor.person=person.id
+LEFT JOIN department ON contractor.department=department.id;
 
 -- view listing persons along with their current work relationship
 CREATE OR REPLACE VIEW vw_person AS
 SELECT
-    per.person_id,
-    per.first_name,
-    per.last_name,
-    per.personal_email,
-    per.org_email,
-    per.username,
-    per.id_number,
-    per.tax_id,
-    COALESCE(e.employee_id, c.contractor_id) AS workforce_id,
+    person.id,
+    person.first_name,
+    person.last_name,
+    person.personal_email,
+    person.org_email,
+    person.username,
+    person.id_number,
+    person.tax_id,
+    COALESCE(employee.id, contractor.id) AS workforce_id,
     CASE
-        WHEN e.employee_id IS NOT NULL THEN 'employee'
-        WHEN c.contractor_id IS NOT NULL THEN 'contractor'
+        WHEN employee.id IS NOT NULL THEN 'employee'
+        WHEN contractor.id IS NOT NULL THEN 'contractor'
         ELSE NULL
     END AS work_type,
     CASE
-        WHEN e.employee_id IS NOT NULL THEN e.manager_id
-        WHEN c.contractor_id IS NOT NULL THEN c.manager_id
-    END AS manager_id,
+        WHEN employee.id IS NOT NULL THEN employee.manager
+        WHEN contractor.id IS NOT NULL THEN contractor.manager
+    END AS manager,
     CASE
-        WHEN e.employee_id IS NOT NULL THEN e.start_date
-        WHEN c.contractor_id IS NOT NULL THEN c.start_date
+        WHEN employee.id IS NOT NULL THEN employee.start_date
+        WHEN contractor.id IS NOT NULL THEN contractor.start_date
     END AS start_date,
     CASE
-        WHEN e.employee_id IS NOT NULL THEN e.end_date
-        WHEN c.contractor_id IS NOT NULL THEN c.end_date
+        WHEN employee.id IS NOT NULL THEN employee.end_date
+        WHEN contractor.id IS NOT NULL THEN contractor.end_date
     END AS end_date
-FROM person per
-LEFT JOIN employee e ON per.person_id = e.person_id
-    AND e.start_date <= CURRENT_DATE
-    AND (e.end_date IS NULL OR e.end_date >= CURRENT_DATE)
-LEFT JOIN contractor c ON per.person_id = c.person_id
-    AND c.start_date <= CURRENT_DATE
-    AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE);
+FROM person
+LEFT JOIN employee ON person.id=employee.person
+    AND employee.start_date<=CURRENT_DATE
+    AND (employee.end_date IS NULL OR employee.end_date >= CURRENT_DATE)
+LEFT JOIN contractor ON person.id = contractor.person
+    AND contractor.start_date<=CURRENT_DATE
+    AND (contractor.end_date IS NULL OR contractor.end_date>=CURRENT_DATE);
 
 
 -- --------------------------------------------------------------
@@ -180,10 +180,10 @@ INSERT INTO department (name, description) VALUES
 ('Human Resources', 'Handles human resources, including recruitment and benefits.'),
 ('Marketing', 'Manages branding, advertising, and market research.');
 
-INSERT INTO position (title, description, department_id) VALUES
-('Information Security Analyst', 'Analysis and security of information.', (SELECT department_id FROM department WHERE name = 'Information Security')),
-('Administrative Analyst', 'Administrative support and daily operations.', (SELECT department_id FROM department WHERE name = 'Administration')),
-('HR Analyst', 'Support in human resources and personnel management.', (SELECT department_id FROM department WHERE name = 'Human Resources'));
+INSERT INTO position (name, description, department) VALUES
+('Information Security Analyst', 'Analysis and security of information.', (SELECT id FROM department WHERE name = 'Information Security')),
+('Administrative Analyst', 'Administrative support and daily operations.', (SELECT id FROM department WHERE name = 'Administration')),
+('HR Analyst', 'Support in human resources and personnel management.', (SELECT id FROM department WHERE name = 'Human Resources'));
 
 INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_email,username) VALUES
 ('John','Lennon','john.lennon@example.com','15012345','20-15012345-3',NULL,NULL),
@@ -193,12 +193,12 @@ INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_ema
 ('Eve','Adams','eve.adams@example.com','35056789','27-35056789-2',NULL,NULL),
 ('Frank','White','frank.white@example.com','40067890','20-40067890-8',NULL,NULL);
 
-INSERT INTO employee (person_id,start_date,position_id,manager_id) VALUES
-((SELECT person_id FROM person WHERE first_name='John' AND last_name='Lennon'),'1960-08-18',(SELECT position_id FROM position WHERE title = 'Information Security Analyst'),NULL),
-((SELECT person_id FROM person WHERE first_name='Paul' AND last_name='McCartney'),'1960-08-18',(SELECT position_id FROM position WHERE title = 'Administrative Analyst'),(SELECT person_id FROM person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT person_id FROM person WHERE first_name='George' AND last_name='Harrison'),'1960-08-18',(SELECT position_id FROM position WHERE title = 'HR Analyst'),(SELECT person_id FROM person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT person_id FROM person WHERE first_name='Ringo' AND last_name='Starr'),'1962-08-14',(SELECT position_id FROM position WHERE title = 'Administrative Analyst'),(SELECT person_id FROM person WHERE first_name='John' AND last_name='Lennon'));
+INSERT INTO employee (person,start_date,position,manager) VALUES
+((SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'),'1960-08-18',(SELECT id FROM position WHERE name='Information Security Analyst'),NULL),
+((SELECT id FROM person WHERE first_name='Paul' AND last_name='McCartney'),'1960-08-18',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon')),
+((SELECT id FROM person WHERE first_name='George' AND last_name='Harrison'),'1960-08-18',(SELECT id FROM position WHERE name='HR Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon')),
+((SELECT id FROM person WHERE first_name='Ringo' AND last_name='Starr'),'1962-08-14',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'));
 
-INSERT INTO contractor (person_id,start_date,company_name,department_id,manager_id) VALUES
-((SELECT person_id FROM person WHERE first_name='Eve' AND last_name='Adams'),'2022-01-10','Tech Solutions Inc.',(SELECT department_id FROM department WHERE name = 'Information Security'),(SELECT p.person_id FROM person p JOIN employee e ON p.person_id=e.person_id WHERE p.first_name='John' AND last_name='Lennon')),
-((SELECT person_id FROM person WHERE first_name='Frank' AND last_name='White'),'2023-03-01','Creative Minds LLC',(SELECT department_id FROM department WHERE name = 'Marketing'),(SELECT p.person_id FROM person p JOIN employee e ON p.person_id=e.person_id WHERE p.first_name='Paul' AND last_name='McCartney'));
+INSERT INTO contractor (person,start_date,company_name,department,manager) VALUES
+((SELECT id FROM person WHERE first_name='Eve' AND last_name='Adams'),'2022-01-10','Tech Solutions Inc.',(SELECT id FROM department WHERE name='Information Security'),(SELECT person.id FROM person JOIN employee ON person.id=employee.person WHERE first_name='John' AND last_name='Lennon')),
+((SELECT id FROM person WHERE first_name='Frank' AND last_name='White'),'2023-03-01','Creative Minds LLC',(SELECT id FROM department WHERE name='Marketing'),(SELECT person.id FROM person JOIN employee ON person.id=employee.person WHERE first_name='Paul' AND last_name='McCartney'));

@@ -14,12 +14,12 @@
         <tbody>
         {% for dept in departments %}
             <tr>
-                <td>{{ dept.department_id }}</td>
+                <td>{{ dept.id }}</td>
                 <td>{{ dept.name }}</td>
                 <td>{{ dept.description }}</td>
                 <td>
-                    <a href="{{ url_for('departments.update', department_id=dept.department_id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{{ url_for('departments.delete', department_id=dept.department_id) }}" method="post" style="display:inline-block;">
+                    <a href="{{ url_for('departments.update', department_id=dept.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ url_for('departments.delete', department_id=dept.id) }}" method="post" style="display:inline-block;">
                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this department?');">Delete</button>
                     </form>
                 </td>

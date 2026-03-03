@@ -16,10 +16,13 @@ def api_list():
         description: List of all persons, including workforce_id, work_type, manager_id, start_date, end_date
     """
     # use the view to simplify the query and ensure consistency with vw_person
-    sql = text("SELECT * FROM vw_person ORDER BY person_id")
+    sql = text("SELECT * FROM vw_person ORDER BY id")
     result = db.session.execute(sql)
     # SQLAlchemy Row objects support a mapping interface
-    persons_data = [dict(row._mapping) for row in result.fetchall()]
+    persons_data = []
+    for row in result.fetchall():
+        rowmap = dict(row._mapping)
+        persons_data.append(rowmap)
     return jsonify(persons_data)
 
 @persons_bp.route('/api/persons/<int:person_id>', methods=['GET'])
@@ -40,13 +43,14 @@ def api_get(person_id):
       404:
         description: Person not found
     """
-    sql = text("SELECT * FROM vw_person WHERE person_id = :pid")
+    sql = text("SELECT * FROM vw_person WHERE id = :pid")
     row = db.session.execute(sql, {'pid': person_id}).fetchone()
     if row is None:
         # mimic get_or_404 behavior
         from flask import abort
         abort(404)
-    return jsonify(dict(row))
+    rowmap = dict(row._mapping)
+    return jsonify(rowmap)
 
 @persons_bp.route('/api/persons/<int:person_id>', methods=['PATCH'])
 def api_update(person_id):
@@ -87,7 +91,7 @@ def api_update(person_id):
 
 @persons_bp.route('/persons')
 def list():
-    persons = Person.query.order_by(Person.person_id).all()
+    persons = Person.query.order_by(Person.id).all()
     return render_template('persons.html', persons=persons)
 
 @persons_bp.route('/persons/add', methods=['GET', 'POST'])

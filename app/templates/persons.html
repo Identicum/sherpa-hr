@@ -17,15 +17,15 @@
         <tbody>
             {% for person in persons %}
             <tr>
-                <td>{{ person.person_id }}</td>
+                <td>{{ person.id }}</td>
                 <td>{{ person.first_name }}</td>
                 <td>{{ person.last_name }}</td>
                 <td>{{ person.personal_email }}</td>
                 <td>{{ person.org_email or '-' }}</td>
                 <td>{{ person.username or '-' }}</td>
                 <td>
-                    <a href="{{ url_for('persons.update', person_id=person.person_id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form method="post" action="{{ url_for('persons.delete', person_id=person.person_id) }}" style="display:inline;">
+                    <a href="{{ url_for('persons.update', person_id=person.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="post" action="{{ url_for('persons.delete', person_id=person.id) }}" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
                 </td>

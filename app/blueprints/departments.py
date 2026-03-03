@@ -14,11 +14,11 @@ def api_list():
       200:
         description: List of all departments
     """
-    departments = Department.query.order_by(Department.department_id).all()
+    departments = Department.query.order_by(Department.id).all()
     departments_data = []
     for dept in departments:
         departments_data.append({
-            'department_id': dept.department_id,
+            'id': dept.id,
             'name': dept.name,
             'description': dept.description
         })
@@ -26,7 +26,7 @@ def api_list():
 
 @departments_bp.route('/departments')
 def list():
-    departments = Department.query.order_by(Department.department_id).all()
+    departments = Department.query.order_by(Department.id).all()
     return render_template('departments.html', departments=departments)
 
 @departments_bp.route('/departments/add', methods=['GET', 'POST'])

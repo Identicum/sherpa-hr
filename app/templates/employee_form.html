@@ -6,8 +6,8 @@
             <div class="col-md-6">
                 {% if action == 'Add' %}
                 <div class="mb-3">
-                    <label for="person_id" class="form-label">Person</label>
-                    <select class="form-select" id="person_id" name="person_id" required>
+                    <label for="person" class="form-label">Person</label>
+                    <select class="form-select" id="person" name="person" required>
                         <option value="">-- Select a Person --</option>
                         {% for person in persons %}
                             <option value="{{ person[0] }}">{{ person[2] }}, {{ person[1] }}</option>
@@ -17,11 +17,11 @@
                 {% else %}
                 <div class="mb-3">
                     <label class="form-label">Person</label>
-                    <p class="form-control-plaintext">{{ employee.person.last_name }}, {{ employee.person.first_name }}</p>
+                    <p class="form-control-plaintext">{{ employee.person_rel.last_name }}, {{ employee.person_rel.first_name }}</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Personal Email</label>
-                    <p class="form-control-plaintext">{{ employee.person.personal_email }}</p>
+                    <p class="form-control-plaintext">{{ employee.person_rel.personal_email }}</p>
                 </div>
                 {% endif %}
                 <div class="mb-3">
