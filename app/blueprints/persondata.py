@@ -10,7 +10,7 @@ def api_list():
     Get all persons along with their current work relationship
     ---
     tags:
-      - Persons
+      - PersonData
     responses:
       200:
         description: List of all persons, including workforce_id, work_type, manager_id, start_date, end_date
@@ -19,7 +19,7 @@ def api_list():
           items:
             $ref: '#/definitions/PersonData'
     """
-    current_app.logger.debug("Fetching all person data from vw_persondata")
+    current_app.logger.debug("Fetching all PersonData from vw_persondata")
     persons = PersonData.query.order_by(PersonData.id).all()
     schema = PersonDataSchema(many=True)
     return jsonify(schema.dump(persons))
@@ -30,7 +30,7 @@ def api_get(person_id):
     Get a specific person along with current work relationship
     ---
     tags:
-      - Persons
+      - PersonData
     parameters:
       - name: person_id
         in: path
@@ -44,7 +44,7 @@ def api_get(person_id):
       404:
         description: Person not found
     """
-    current_app.logger.debug("Fetching person data for id: {}", person_id)
+    current_app.logger.debug("Fetching PersonData for id: {}", person_id)
     person = PersonData.query.get(person_id)
     if not person:
         current_app.logger.debug("PersonData with id: {} not found", person_id)
