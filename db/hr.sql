@@ -52,7 +52,7 @@ CREATE TABLE person (
 
 CREATE TABLE employee (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 20001),
-    person INT NOT NULL UNIQUE REFERENCES person(id) ON DELETE CASCADE,
+    person INT NOT NULL REFERENCES person(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE,
     position INT REFERENCES position(id) ON DELETE RESTRICT,
@@ -63,7 +63,7 @@ CREATE TABLE employee (
 
 CREATE TABLE contractor (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 30001),
-    person INT NOT NULL UNIQUE REFERENCES person(id) ON DELETE CASCADE,
+    person INT NOT NULL REFERENCES person(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE,
     company_name VARCHAR(100),
@@ -127,42 +127,60 @@ FROM contractor
 JOIN person ON contractor.person=person.id
 LEFT JOIN department ON contractor.department=department.id;
 
--- view listing persons along with their current work relationship
-CREATE OR REPLACE VIEW vw_person AS
+-- view listing persons along with their current/last work relationship
+CREATE OR REPLACE VIEW vw_persondata AS
+WITH all_relationships AS (
+    SELECT
+        person AS person_id,
+        'Employee' AS relationship_type,
+        start_date,
+        end_date,
+        position_name,
+        department_name,
+        NULL::VARCHAR AS company_name,
+        manager,
+        status
+    FROM vw_employee
+    UNION ALL
+    SELECT
+        person AS person_id,
+        'Contractor' AS relationship_type,
+        start_date,
+        end_date,
+        NULL::VARCHAR AS position_name,
+        department_name,
+        company_name,
+        manager,
+        status
+    FROM vw_contractor
+),
+ranked_relationships AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY start_date DESC, end_date DESC NULLS FIRST) as rn
+    FROM all_relationships
+)
 SELECT
-    person.id,
-    person.first_name,
-    person.last_name,
-    person.personal_email,
-    person.org_email,
-    person.username,
-    person.id_number,
-    person.tax_id,
-    COALESCE(employee.id, contractor.id) AS workforce_id,
-    CASE
-        WHEN employee.id IS NOT NULL THEN 'employee'
-        WHEN contractor.id IS NOT NULL THEN 'contractor'
-        ELSE NULL
-    END AS work_type,
-    CASE
-        WHEN employee.id IS NOT NULL THEN employee.manager
-        WHEN contractor.id IS NOT NULL THEN contractor.manager
-    END AS manager,
-    CASE
-        WHEN employee.id IS NOT NULL THEN employee.start_date
-        WHEN contractor.id IS NOT NULL THEN contractor.start_date
-    END AS start_date,
-    CASE
-        WHEN employee.id IS NOT NULL THEN employee.end_date
-        WHEN contractor.id IS NOT NULL THEN contractor.end_date
-    END AS end_date
-FROM person
-LEFT JOIN employee ON person.id=employee.person
-    AND employee.start_date<=CURRENT_DATE
-    AND (employee.end_date IS NULL OR employee.end_date >= CURRENT_DATE)
-LEFT JOIN contractor ON person.id = contractor.person
-    AND contractor.start_date<=CURRENT_DATE
-    AND (contractor.end_date IS NULL OR contractor.end_date>=CURRENT_DATE);
+    p.id,
+    p.username,
+    p.first_name,
+    p.last_name,
+    p.personal_email,
+    p.org_email,
+    p.id_number,
+    p.tax_id,
+    r.relationship_type,
+    p.created_at,
+    p.updated_at,
+    r.start_date,
+    r.end_date,
+    r.status,
+    r.position_name,
+    r.department_name,
+    r.manager,
+    r.company_name
+FROM person p
+LEFT JOIN ranked_relationships r ON p.id = r.person_id AND r.rn = 1;
 
 
 -- --------------------------------------------------------------

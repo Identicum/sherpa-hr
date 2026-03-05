@@ -25,12 +25,27 @@ class PersonSchema(Schema):
     username = fields.Str(allow_none=True)
     id_number = fields.Str()
     tax_id = fields.Str()
-    # workforce view columns
-    workforce_id = fields.Int(allow_none=True)
-    work_type = fields.Str(allow_none=True)
-    manager = fields.Int(allow_none=True)
+
+
+class PersonDataSchema(Schema):
+    id = fields.Int()
+    username = fields.Str(allow_none=True)
+    first_name = fields.Str()
+    last_name = fields.Str()
+    personal_email = fields.Str()
+    org_email = fields.Str(allow_none=True)
+    id_number = fields.Str()
+    tax_id = fields.Str()
+    relationship_type = fields.Str(allow_none=True)
+    created_at = fields.DateTime(allow_none=True)
+    updated_at = fields.DateTime(allow_none=True)
     start_date = fields.Date(allow_none=True)
     end_date = fields.Date(allow_none=True)
+    status = fields.Str(allow_none=True)
+    position_name = fields.Str(allow_none=True)
+    department_name = fields.Str(allow_none=True)
+    manager = fields.Int(allow_none=True)
+    company_name = fields.Str(allow_none=True)
 
 
 class EmployeeSchema(Schema):

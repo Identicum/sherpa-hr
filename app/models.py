@@ -54,3 +54,25 @@ class Contractor(db.Model):
     manager_id = db.Column('manager', db.Integer, db.ForeignKey('person.id', ondelete='SET NULL'))
     manager = db.relationship('Person', foreign_keys=[manager_id], lazy=True)
     # department relationship provided by Department.contractors backref
+
+class PersonData(db.Model):
+    __tablename__ = 'vw_persondata'
+    # This is a view, so it should be read-only for ORM
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50))
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
+    personal_email = db.Column(db.String(100))
+    org_email = db.Column(db.String(100))
+    id_number = db.Column(db.String(10))
+    tax_id = db.Column(db.String(15))
+    relationship_type = db.Column(db.String(20))
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    status = db.Column(db.String(1))
+    position_name = db.Column(db.String(100))
+    department_name = db.Column(db.String(100))
+    manager = db.Column(db.Integer)
+    company_name = db.Column(db.String(100))

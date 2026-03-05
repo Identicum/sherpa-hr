@@ -5,61 +5,6 @@ from schemas import PersonSchema
 
 persons_bp = Blueprint('persons', __name__)
 
-@persons_bp.route('/api/persons', methods=['GET'])
-def api_list():
-    """
-    Get all persons along with their current work relationship
-    ---
-    tags:
-      - Persons
-    responses:
-      200:
-        description: List of all persons, including workforce_id, work_type, manager_id, start_date, end_date
-        schema:
-          type: array
-          items:
-            $ref: '#/definitions/Person'
-    """
-    # use the view to simplify the query and ensure consistency with vw_person
-    sql = text("SELECT * FROM vw_person ORDER BY id")
-    result = db.session.execute(sql)
-    # SQLAlchemy Row objects support a mapping interface
-    persons_data = []
-    for row in result.fetchall():
-        rowmap = dict(row._mapping)
-        persons_data.append(rowmap)
-    current_app.logger.debug("Returning list of {} persons", len(persons_data))
-    return jsonify(PersonSchema(many=True).dump(persons_data))
-
-@persons_bp.route('/api/persons/<int:person_id>', methods=['GET'])
-def api_get(person_id):
-    """
-    Get a specific person along with current work relationship
-    ---
-    tags:
-      - Persons
-    parameters:
-      - name: person_id
-        in: path
-        type: integer
-        required: true
-    responses:
-      200:
-        description: Person details with workforce info
-        schema:
-          $ref: '#/definitions/Person'
-      404:
-        description: Person not found
-    """
-    sql = text("SELECT * FROM vw_person WHERE id = :pid")
-    row = db.session.execute(sql, {'pid': person_id}).fetchone()
-    if row is None:
-        current_app.logger.debug("Person with id: {} not found", person_id)
-        abort(404)
-    rowmap = dict(row._mapping)
-    current_app.logger.debug("Returning person data for id: {}", person_id)
-    return jsonify(PersonSchema().dump(rowmap))
-
 @persons_bp.route('/api/persons/<int:person_id>', methods=['PATCH'])
 def api_update(person_id):
     """

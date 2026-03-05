@@ -6,6 +6,7 @@ from schemas import (
     DepartmentSchema,
     PositionSchema,
     PersonSchema,
+    PersonDataSchema,
     EmployeeSchema,
     ContractorSchema,
 )
@@ -13,6 +14,7 @@ import config as config
 from blueprints.departments import departments_bp
 from blueprints.positions import positions_bp
 from blueprints.persons import persons_bp
+from blueprints.persondata import persondata_bp
 from blueprints.employees import employees_bp
 from blueprints.contractors import contractors_bp
 from sherpa.utils.basics import Logger
@@ -53,6 +55,7 @@ swagger = Flasgger(app, template={
         'Department': _schema_def(DepartmentSchema),
         'Position': _schema_def(PositionSchema),
         'Person': _schema_def(PersonSchema),
+        'PersonData': _schema_def(PersonDataSchema),
         'Employee': _schema_def(EmployeeSchema),
         'Contractor': _schema_def(ContractorSchema),
     }
@@ -62,6 +65,7 @@ swagger = Flasgger(app, template={
 app.register_blueprint(departments_bp)
 app.register_blueprint(positions_bp)
 app.register_blueprint(persons_bp)
+app.register_blueprint(persondata_bp)
 app.register_blueprint(employees_bp)
 app.register_blueprint(contractors_bp)
 
