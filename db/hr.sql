@@ -135,9 +135,10 @@ WITH all_relationships AS (
         'Employee' AS relationship_type,
         start_date,
         end_date,
+        position,
         position_name,
         department_name,
-        NULL::VARCHAR AS company_name,
+        'Sherpa' AS company_name,
         manager,
         status
     FROM vw_employee
@@ -147,6 +148,7 @@ WITH all_relationships AS (
         'Contractor' AS relationship_type,
         start_date,
         end_date,
+        NULL::INT AS position,
         NULL::VARCHAR AS position_name,
         department_name,
         company_name,
@@ -175,6 +177,7 @@ SELECT
     r.start_date,
     r.end_date,
     r.status,
+    r.position,
     r.position_name,
     r.department_name,
     r.manager,
