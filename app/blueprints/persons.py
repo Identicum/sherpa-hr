@@ -1,5 +1,5 @@
 from flask import abort, Blueprint, current_app, flash, jsonify, render_template, request, redirect, url_for
-from models import db, Person
+from models import db, Person, Employee, Contractor
 from sqlalchemy import text
 from schemas import PersonSchema
 
@@ -88,6 +88,14 @@ def update(person_id):
 @persons_bp.route('/persons/delete/<int:person_id>', methods=['POST'])
 def delete(person_id):
     person = Person.query.get_or_404(person_id)
+    employee_count = Employee.query.filter_by(person=person_id).count()
+    if employee_count > 0:
+        flash('Cannot delete person: it has related employees.')
+        return redirect(url_for('persons.list'))
+    contractor_count = Contractor.query.filter_by(person=person_id).count()
+    if contractor_count > 0:
+        flash('Cannot delete person: it has related contractors.')
+        return redirect(url_for('persons.list'))
     db.session.delete(person)
     db.session.commit()
     flash('Person deleted!')
