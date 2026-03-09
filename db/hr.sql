@@ -176,7 +176,7 @@ SELECT
     p.updated_at,
     r.start_date,
     r.end_date,
-    r.status,
+    COALESCE(r.status, 'I') AS status,
     r.position,
     r.position_name,
     r.department_name,
