@@ -67,6 +67,9 @@
             height: 2rem;
             border-left: 2px solid #ced4da;
         }
+        .org-chart ul ul.no-parent-line::before {
+            display: none;
+        }
     </style>
 
     <div class="org-chart mb-4">
@@ -82,7 +85,7 @@
                 </a>
                 {% endif %}
 
-                <ul>
+                <ul{% if not department.parent %} class="no-parent-line"{% endif %}>
                     <li>
                         <div class="card border-primary shadow-sm" style="width: 20rem;">
                             <div class="card-body position-relative">

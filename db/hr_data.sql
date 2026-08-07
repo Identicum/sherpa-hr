@@ -8,10 +8,13 @@ INSERT INTO department_type (name) VALUES
 ('Team');
 
 INSERT INTO department (name, description, code, top_level, parent, department_type) VALUES
-('Information Security', 'Responsible for information and systems security.', 'INFOSEC0', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division')),
-('Finance', 'Manages financial operations, accounting, and reporting.', 'FIN00000', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division')),
-('Human Resources', 'Handles human resources, including recruitment and benefits.', 'HR000000', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division')),
-('Marketing', 'Manages branding, advertising, and market research.', 'MKTG0000', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division'));
+('CEO', 'CEO', 'CEO', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division'));
+
+INSERT INTO department (name, description, code, top_level, parent, department_type) VALUES
+('Information Security', 'Responsible for information and systems security.', 'INFOSEC0', FALSE, (SELECT id FROM department WHERE name = 'CEO'), (SELECT id FROM department_type WHERE name = 'Division')),
+('Finance', 'Manages financial operations, accounting, and reporting.', 'FIN00000', FALSE, (SELECT id FROM department WHERE name = 'CEO'), (SELECT id FROM department_type WHERE name = 'Division')),
+('Human Resources', 'Handles human resources, including recruitment and benefits.', 'HR000000', FALSE, (SELECT id FROM department WHERE name = 'CEO'), (SELECT id FROM department_type WHERE name = 'Division')),
+('Marketing', 'Manages branding, advertising, and market research.', 'MKTG0000', FALSE, (SELECT id FROM department WHERE name = 'CEO'), (SELECT id FROM department_type WHERE name = 'Division'));
 
 INSERT INTO department (name, description, code, top_level, parent, department_type) VALUES
 ('Security Operations', 'Monitors and responds to security incidents.', 'INFOSEC1', FALSE, (SELECT id FROM department WHERE name = 'Information Security'), (SELECT id FROM department_type WHERE name = 'Team')),

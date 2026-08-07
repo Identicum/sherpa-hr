@@ -49,6 +49,11 @@ def list():
     persons = Person.query.order_by(Person.id).all()
     return render_template('persons.html', persons=persons)
 
+@persons_bp.route('/persons/<int:person_id>')
+def detail(person_id):
+    person = Person.query.get_or_404(person_id)
+    return render_template('person_detail.html', person=person)
+
 @persons_bp.route('/persons/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
