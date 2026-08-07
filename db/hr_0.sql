@@ -46,7 +46,6 @@ CREATE TABLE position (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    department INT REFERENCES department(id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -70,10 +69,14 @@ CREATE TABLE employee (
     start_date DATE NOT NULL,
     end_date DATE,
     position INT REFERENCES position(id) ON DELETE RESTRICT,
-    manager INT REFERENCES person(id) ON DELETE SET NULL,
+    department INT NOT NULL REFERENCES department(id) ON DELETE RESTRICT,
+    department_relation VARCHAR(10) NOT NULL DEFAULT 'MEMBER' CHECK (department_relation IN ('MANAGER', 'MEMBER')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- at most one employee can be the MANAGER of a given department
+CREATE UNIQUE INDEX ix_employee_department_manager ON employee(department) WHERE department_relation = 'MANAGER';
 
 CREATE TABLE contractor (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 30001),
@@ -82,7 +85,6 @@ CREATE TABLE contractor (
     end_date DATE,
     company_name VARCHAR(100),
     department INT REFERENCES department(id) ON DELETE RESTRICT,
-    manager INT REFERENCES person(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -104,7 +106,8 @@ SELECT
     employee.start_date,
     employee.end_date,
     employee.position,
-    employee.manager,
+    employee.department,
+    employee.department_relation,
     position.name AS position_name,
     department.name AS department_name,
     CASE
@@ -114,7 +117,7 @@ SELECT
 FROM employee
 JOIN person ON employee.person=person.id
 LEFT JOIN position ON employee.position=position.id
-LEFT JOIN department ON position.department=department.id;
+JOIN department ON employee.department=department.id;
 
 CREATE OR REPLACE VIEW vw_contractor AS
 SELECT
@@ -131,7 +134,6 @@ SELECT
     contractor.end_date,
     contractor.company_name,
     contractor.department,
-    contractor.manager,
     department.name AS department_name,
     CASE
         WHEN contractor.start_date<=CURRENT_DATE AND (contractor.end_date IS NULL OR contractor.end_date>=CURRENT_DATE) THEN 'A'
@@ -153,7 +155,7 @@ WITH all_relationships AS (
         position_name,
         department_name,
         'Sherpa' AS company_name,
-        manager,
+        department_relation,
         status
     FROM vw_employee
     UNION ALL
@@ -166,7 +168,7 @@ WITH all_relationships AS (
         NULL::VARCHAR AS position_name,
         department_name,
         company_name,
-        manager,
+        NULL::VARCHAR AS department_relation,
         status
     FROM vw_contractor
 ),
@@ -194,7 +196,7 @@ SELECT
     r.position,
     r.position_name,
     r.department_name,
-    r.manager,
+    r.department_relation,
     r.company_name
 FROM person p
 LEFT JOIN ranked_relationships r ON p.id = r.person_id AND r.rn = 1;

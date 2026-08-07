@@ -22,10 +22,10 @@ INSERT INTO department (name, description, code, top_level, parent, department_t
 ('Accounts Payable', 'Manages outgoing payments to vendors and suppliers.', 'FIN00002', FALSE, (SELECT id FROM department WHERE name = 'Finance'), (SELECT id FROM department_type WHERE name = 'Team')),
 ('Accounts Receivable', 'Manages incoming payments and customer invoicing.', 'FIN00003', FALSE, (SELECT id FROM department WHERE name = 'Finance'), (SELECT id FROM department_type WHERE name = 'Team'));
 
-INSERT INTO position (name, description, department) VALUES
-('Information Security Analyst', 'Analysis and security of information.', (SELECT id FROM department WHERE name = 'Information Security')),
-('Administrative Analyst', 'Administrative support and daily operations.', (SELECT id FROM department WHERE name = 'Finance')),
-('HR Analyst', 'Support in human resources and personnel management.', (SELECT id FROM department WHERE name = 'Human Resources'));
+INSERT INTO position (name, description) VALUES
+('Information Security Analyst', 'Analysis and security of information.'),
+('Administrative Analyst', 'Administrative support and daily operations.'),
+('HR Analyst', 'Support in human resources and personnel management.');
 
 INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_email,username) VALUES
 ('John','Lennon','john.lennon@example.com','15012345','20-15012345-3',NULL,NULL),
@@ -35,12 +35,12 @@ INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_ema
 ('Eve','Adams','eve.adams@example.com','35056789','27-35056789-2',NULL,NULL),
 ('Frank','White','frank.white@example.com','40067890','20-40067890-8',NULL,NULL);
 
-INSERT INTO employee (person,start_date,position,manager) VALUES
-((SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'),'1960-08-18',(SELECT id FROM position WHERE name='Information Security Analyst'),NULL),
-((SELECT id FROM person WHERE first_name='Paul' AND last_name='McCartney'),'1960-08-18',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT id FROM person WHERE first_name='George' AND last_name='Harrison'),'1960-08-18',(SELECT id FROM position WHERE name='HR Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT id FROM person WHERE first_name='Ringo' AND last_name='Starr'),'1962-08-14',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'));
+INSERT INTO employee (person,start_date,position,department,department_relation) VALUES
+((SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'),'1960-08-18',(SELECT id FROM position WHERE name='Information Security Analyst'),(SELECT id FROM department WHERE name='Information Security'),'MANAGER'),
+((SELECT id FROM person WHERE first_name='Paul' AND last_name='McCartney'),'1960-08-18',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM department WHERE name='Finance'),'MEMBER'),
+((SELECT id FROM person WHERE first_name='George' AND last_name='Harrison'),'1960-08-18',(SELECT id FROM position WHERE name='HR Analyst'),(SELECT id FROM department WHERE name='Human Resources'),'MEMBER'),
+((SELECT id FROM person WHERE first_name='Ringo' AND last_name='Starr'),'1962-08-14',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM department WHERE name='Finance'),'MEMBER');
 
-INSERT INTO contractor (person,start_date,company_name,department,manager) VALUES
-((SELECT id FROM person WHERE first_name='Eve' AND last_name='Adams'),'2022-01-10','Tech Solutions Inc.',(SELECT id FROM department WHERE name='Information Security'),(SELECT person.id FROM person JOIN employee ON person.id=employee.person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT id FROM person WHERE first_name='Frank' AND last_name='White'),'2023-03-01','Creative Minds LLC',(SELECT id FROM department WHERE name='Marketing'),(SELECT person.id FROM person JOIN employee ON person.id=employee.person WHERE first_name='Paul' AND last_name='McCartney'));
+INSERT INTO contractor (person,start_date,company_name,department) VALUES
+((SELECT id FROM person WHERE first_name='Eve' AND last_name='Adams'),'2022-01-10','Tech Solutions Inc.',(SELECT id FROM department WHERE name='Information Security')),
+((SELECT id FROM person WHERE first_name='Frank' AND last_name='White'),'2023-03-01','Creative Minds LLC',(SELECT id FROM department WHERE name='Marketing'));

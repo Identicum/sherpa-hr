@@ -41,15 +41,6 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label for="manager_id" class="form-label">Manager</label>
-                    <select class="form-select" id="manager_id" name="manager_id">
-                        <option value="">-- None --</option>
-                        {% for mgr in managers %}
-                            <option value="{{ mgr[0] }}" {% if contractor and contractor.manager_id == mgr[0] %}selected{% endif %}>{{ mgr[2] }}, {{ mgr[1] }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
 
                 <button type="submit" class="btn btn-success">{{ action }}</button>
                 <a href="{{ url_for('contractors.list') }}" class="btn btn-secondary">Cancel</a>

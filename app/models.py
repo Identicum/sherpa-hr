@@ -24,17 +24,21 @@ class Department(db.Model):
     parent = db.relationship('Department', remote_side=[id], backref='children')
     department_type_id = db.Column('department_type', db.Integer, db.ForeignKey('department_type.id', ondelete='RESTRICT'), nullable=False)
     department_type = db.relationship('DepartmentType', backref='departments')
-    positions = db.relationship('Position', backref='department', lazy=True)
+    employees = db.relationship('Employee', backref='department', lazy=True)
     contractors = db.relationship('Contractor', backref='department', lazy=True)
+    manager_employee = db.relationship(
+        'Employee',
+        primaryjoin="and_(Employee.department_id==Department.id, Employee.department_relation=='MANAGER')",
+        uselist=False,
+        viewonly=True,
+    )
 
 class Position(db.Model):
     __tablename__ = 'position'
     id = db.Column('id', db.Integer, primary_key=True)
     name = db.Column('name', db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
-    department_id = db.Column('department', db.Integer, db.ForeignKey('department.id', ondelete='RESTRICT'))
     employees = db.relationship('Employee', backref='position', lazy=True)
-    # department relationship provided by Department.positions backref
 
 class Person(db.Model):
     __tablename__ = 'person'
@@ -51,14 +55,21 @@ class Person(db.Model):
 
 class Employee(db.Model):
     __tablename__ = 'employee'
+    __table_args__ = (
+        db.CheckConstraint(
+            "department_relation IN ('MANAGER', 'MEMBER')",
+            name='ck_employee_department_relation'
+        ),
+    )
     id = db.Column('id', db.Integer, primary_key=True)
     person = db.Column('person', db.Integer, db.ForeignKey('person.id', ondelete='CASCADE'), nullable=False, unique=True)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date)
     position_id = db.Column('position', db.Integer, db.ForeignKey('position.id', ondelete='RESTRICT'))
-    manager_id = db.Column('manager', db.Integer, db.ForeignKey('person.id', ondelete='SET NULL'))
-    manager = db.relationship('Person', foreign_keys=[manager_id], lazy=True)
+    department_id = db.Column('department', db.Integer, db.ForeignKey('department.id', ondelete='RESTRICT'), nullable=False)
+    department_relation = db.Column(db.String(10), nullable=False, default='MEMBER')
     # position relationship provided by Position.employees backref
+    # department relationship provided by Department.employees backref
 
 class Contractor(db.Model):
     __tablename__ = 'contractor'
@@ -68,8 +79,6 @@ class Contractor(db.Model):
     end_date = db.Column(db.Date)
     company_name = db.Column(db.String(100))
     department_id = db.Column('department', db.Integer, db.ForeignKey('department.id', ondelete='RESTRICT'))
-    manager_id = db.Column('manager', db.Integer, db.ForeignKey('person.id', ondelete='SET NULL'))
-    manager = db.relationship('Person', foreign_keys=[manager_id], lazy=True)
     # department relationship provided by Department.contractors backref
 
 class PersonData(db.Model):
@@ -92,5 +101,5 @@ class PersonData(db.Model):
     position = db.Column(db.Integer)
     position_name = db.Column(db.String(100))
     department_name = db.Column(db.String(100))
-    manager = db.Column(db.Integer)
+    department_relation = db.Column(db.String(10))
     company_name = db.Column(db.String(100))

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from models import db, Department, DepartmentType, Position, Contractor
+from models import db, Department, DepartmentType, Employee, Contractor
 from schemas import DepartmentSchema
 
 departments_bp = Blueprint('departments', __name__)
@@ -110,9 +110,9 @@ def update(department_id):
 @departments_bp.route('/departments/delete/<int:department_id>', methods=['POST'])
 def delete(department_id):
     dept = Department.query.get_or_404(department_id)
-    pos_count = Position.query.filter_by(department_id=department_id).count()
-    if pos_count > 0:
-        flash('Cannot delete department: it has related positions.')
+    employee_count = Employee.query.filter_by(department_id=department_id).count()
+    if employee_count > 0:
+        flash('Cannot delete department: it has assigned employees.')
         return redirect(url_for('departments.detail', department_id=department_id))
     contractor_count = Contractor.query.filter_by(department_id=department_id).count()
     if contractor_count > 0:

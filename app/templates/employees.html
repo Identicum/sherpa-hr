@@ -10,6 +10,7 @@
                 <th>Last Name</th>
                 <th>Position</th>
                 <th>Department</th>
+                <th>Relation</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -20,7 +21,8 @@
                 <td>{{ emp[1] }}</td>
                 <td>{{ emp[2] }}</td>
                 <td>{{ emp[3] or '' }}</td>
-                <td>{{ emp[4] or '' }}</td>
+                <td>{{ emp[4] }}</td>
+                <td>{{ emp[5] }}</td>
                 <td>
                     <form action="{{ url_for('employees.delete', employee_id=emp[0]) }}" method="post" style="display:inline-block;">
                         <button type="submit" class="btn btn-link text-danger p-0 border-0" onclick="return confirm('Delete this employee?');" title="Delete">

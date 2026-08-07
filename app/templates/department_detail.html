@@ -103,7 +103,15 @@
                                 </div>
                                 <h5 class="card-title">{{ department.name }}</h5>
                                 <p class="card-text mb-1">{{ department.code }} <span class="text-muted">({{ department.department_type.name }})</span></p>
-                                <p class="card-text mb-0">{{ department.description }}</p>
+                                <p class="card-text mb-1">{{ department.description }}</p>
+                                <p class="card-text mb-0">
+                                    Manager:
+                                    {% if department.manager_employee %}
+                                        {{ department.manager_employee.person_rel.first_name }} {{ department.manager_employee.person_rel.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </p>
                             </div>
                         </div>
 
