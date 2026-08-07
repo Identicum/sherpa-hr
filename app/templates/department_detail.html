@@ -2,53 +2,128 @@
 {% block content %}
     <h1 class="mb-4">{{ department.name }}</h1>
 
-    {% if department.parent %}
-    <div class="mb-3">
-        <div class="text-muted small mb-1">Parent</div>
-        <a href="{{ url_for('departments.detail', department_id=department.parent.id) }}" class="text-decoration-none">
-            <div class="card d-inline-block" style="width: 12rem;">
-                <div class="card-body py-2 text-center">
-                    <span class="card-text">{{ department.parent.name }}</span>
-                </div>
-            </div>
-        </a>
-    </div>
-    {% endif %}
+    <style>
+        .org-chart, .org-chart ul, .org-chart li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .org-chart {
+            display: flex;
+            justify-content: center;
+        }
+        .org-chart ul {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            padding-top: 2rem;
+        }
+        .org-chart li {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: 2rem 0.75rem 0 0.75rem;
+        }
+        .org-chart li::before,
+        .org-chart li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            width: 50%;
+            height: 2rem;
+            border-top: 2px solid #ced4da;
+        }
+        .org-chart li::after {
+            right: auto;
+            left: 50%;
+            border-left: 2px solid #ced4da;
+        }
+        .org-chart li:only-child {
+            padding-top: 0;
+        }
+        .org-chart li:only-child::before,
+        .org-chart li:only-child::after {
+            display: none;
+        }
+        .org-chart li:first-child::before,
+        .org-chart li:last-child::after {
+            border: 0 none;
+        }
+        .org-chart li:last-child::before {
+            border-right: 2px solid #ced4da;
+            border-radius: 0 6px 0 0;
+        }
+        .org-chart li:first-child::after {
+            border-radius: 6px 0 0 0;
+        }
+        .org-chart ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 0;
+            height: 2rem;
+            border-left: 2px solid #ced4da;
+        }
+    </style>
 
-    <div class="card mb-3" style="max-width: 28rem;">
-        <div class="card-body position-relative">
-            <div class="position-absolute top-0 end-0 p-2">
-                <a href="{{ url_for('departments.update', department_id=department.id) }}" class="text-secondary me-2" title="Edit">
-                    <i class="bi bi-pencil-fill"></i>
+    <div class="org-chart mb-4">
+        <ul>
+            <li>
+                {% if department.parent %}
+                <a href="{{ url_for('departments.detail', department_id=department.parent.id) }}" class="text-decoration-none">
+                    <div class="card" style="width: 12rem;">
+                        <div class="card-body py-2 text-center">
+                            <span class="card-text">{{ department.parent.name }}</span>
+                        </div>
+                    </div>
                 </a>
-                {% if not department.children %}
-                <form action="{{ url_for('departments.delete', department_id=department.id) }}" method="post" class="d-inline" onsubmit="return confirm('Delete this department?');">
-                    <button type="submit" class="btn btn-link text-danger p-0 border-0 align-baseline" title="Delete">
-                        <i class="bi bi-trash-fill"></i>
-                    </button>
-                </form>
                 {% endif %}
-            </div>
-            <h5 class="card-title">{{ department.name }}</h5>
-            <p class="card-text mb-1">{{ department.code }} <span class="text-muted">({{ department.department_type.name }})</span></p>
-            <p class="card-text">{{ department.description }}</p>
-        </div>
-    </div>
 
-    {% if department.children %}
-    <div class="text-muted small mb-1">Child departments</div>
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        {% for child in department.children %}
-        <a href="{{ url_for('departments.detail', department_id=child.id) }}" class="text-decoration-none">
-            <div class="card" style="width: 12rem;">
-                <div class="card-body py-2 text-center">
-                    <span class="card-text">{{ child.name }}</span>
-                </div>
-            </div>
-        </a>
-        {% endfor %}
+                <ul>
+                    <li>
+                        <div class="card border-primary shadow-sm" style="width: 20rem;">
+                            <div class="card-body position-relative">
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <a href="{{ url_for('departments.update', department_id=department.id) }}" class="text-secondary me-2" title="Edit">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    {% if not department.children %}
+                                    <form action="{{ url_for('departments.delete', department_id=department.id) }}" method="post" class="d-inline" onsubmit="return confirm('Delete this department?');">
+                                        <button type="submit" class="btn btn-link text-danger p-0 border-0 align-baseline" title="Delete">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                <h5 class="card-title">{{ department.name }}</h5>
+                                <p class="card-text mb-1">{{ department.code }} <span class="text-muted">({{ department.department_type.name }})</span></p>
+                                <p class="card-text mb-0">{{ department.description }}</p>
+                            </div>
+                        </div>
+
+                        {% if department.children %}
+                        <ul>
+                            {% for child in department.children %}
+                            <li>
+                                <a href="{{ url_for('departments.detail', department_id=child.id) }}" class="text-decoration-none">
+                                    <div class="card" style="width: 12rem;">
+                                        <div class="card-body py-2 text-center">
+                                            <span class="card-text">{{ child.name }}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </li>
+                </ul>
+            </li>
+        </ul>
     </div>
-    {% endif %}
 
     <a href="{{ url_for('departments.list') }}" class="btn btn-secondary mt-2">Back to Departments</a>
 {% endblock %}
