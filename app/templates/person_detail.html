@@ -16,13 +16,15 @@
                 </form>
                 {% endif %}
             </div>
-            <h5 class="card-title">Person #{{ person.id }}</h5>
+            <h5 class="card-title">Internal ID: {{ person.id }}</h5>
             <hr>
 
             <h6 class="fw-bold text-muted mt-3">Personal information</h6>
             <p class="card-text mb-1">{{ person.first_name }} {{ person.last_name }}</p>
             <p class="card-text mb-1">{{ person.personal_email }}</p>
-            <p class="card-text mb-0">ID {{ person.id_number }} &middot; Tax ID {{ person.tax_id }}</p>
+            <p class="card-text mb-0">ID number: {{ person.id_number }}</p>
+            <p class="card-text mb-0">Tax ID: {{ person.tax_id }}</p>
+            <hr>
 
             <h6 class="fw-bold text-muted mt-3">Organizational information</h6>
             <p class="card-text mb-1">Username: {{ person.username or '-' }}</p>
