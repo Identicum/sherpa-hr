@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="mb-4">{{ department.name }}</h1>
+
+    {% if department.parent %}
+    <div class="mb-3">
+        <div class="text-muted small mb-1">Parent</div>
+        <a href="{{ url_for('departments.detail', department_id=department.parent.id) }}" class="text-decoration-none">
+            <div class="card d-inline-block" style="width: 12rem;">
+                <div class="card-body py-2 text-center">
+                    <span class="card-text">{{ department.parent.name }}</span>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="card mb-3" style="max-width: 28rem;">
+        <div class="card-body position-relative">
+            <div class="position-absolute top-0 end-0 p-2">
+                <a href="{{ url_for('departments.update', department_id=department.id) }}" class="text-secondary me-2" title="Edit">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+                {% if not department.children %}
+                <form action="{{ url_for('departments.delete', department_id=department.id) }}" method="post" class="d-inline" onsubmit="return confirm('Delete this department?');">
+                    <button type="submit" class="btn btn-link text-danger p-0 border-0 align-baseline" title="Delete">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <h5 class="card-title">{{ department.name }}</h5>
+            <p class="card-text mb-1">{{ department.code }} <span class="text-muted">({{ department.department_type.name }})</span></p>
+            <p class="card-text">{{ department.description }}</p>
+        </div>
+    </div>
+
+    {% if department.children %}
+    <div class="text-muted small mb-1">Child departments</div>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        {% for child in department.children %}
+        <a href="{{ url_for('departments.detail', department_id=child.id) }}" class="text-decoration-none">
+            <div class="card" style="width: 12rem;">
+                <div class="card-body py-2 text-center">
+                    <span class="card-text">{{ child.name }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('departments.list') }}" class="btn btn-secondary mt-2">Back to Departments</a>
+{% endblock %}

@@ -1,10 +1,19 @@
 from marshmallow import Schema, fields
 
 
+class DepartmentTypeSchema(Schema):
+    id = fields.Int()
+    name = fields.Str()
+
+
 class DepartmentSchema(Schema):
     id = fields.Int()
     name = fields.Str()
     description = fields.Str(allow_none=True)
+    code = fields.Str()
+    top_level = fields.Bool()
+    parent_id = fields.Int(allow_none=True)
+    department_type_id = fields.Int()
 
 
 class PositionSchema(Schema):

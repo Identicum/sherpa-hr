@@ -2,11 +2,28 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+class DepartmentType(db.Model):
+    __tablename__ = 'department_type'
+    id = db.Column('id', db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+
 class Department(db.Model):
     __tablename__ = 'department'
+    __table_args__ = (
+        db.CheckConstraint(
+            "(top_level = true AND parent IS NULL) OR (top_level = false AND parent IS NOT NULL)",
+            name='ck_department_toplevel_parent'
+        ),
+    )
     id = db.Column('id', db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
+    code = db.Column(db.String(8), unique=True, nullable=False)
+    top_level = db.Column(db.Boolean, nullable=False, default=True)
+    parent_id = db.Column('parent', db.Integer, db.ForeignKey('department.id', ondelete='RESTRICT'))
+    parent = db.relationship('Department', remote_side=[id], backref='children')
+    department_type_id = db.Column('department_type', db.Integer, db.ForeignKey('department_type.id', ondelete='RESTRICT'), nullable=False)
+    department_type = db.relationship('DepartmentType', backref='departments')
     positions = db.relationship('Position', backref='department', lazy=True)
     contractors = db.relationship('Contractor', backref='department', lazy=True)
 

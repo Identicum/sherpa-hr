@@ -20,12 +20,26 @@ $$ LANGUAGE plpgsql;
 -- --------------------------------------------------------------
 -- TABLES
 
+CREATE TABLE department_type (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE department (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
+    code VARCHAR(8) NOT NULL UNIQUE,
+    top_level BOOLEAN NOT NULL DEFAULT TRUE,
+    parent INT REFERENCES department(id) ON DELETE RESTRICT,
+    department_type INT NOT NULL REFERENCES department_type(id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT ck_department_toplevel_parent CHECK (
+        (top_level = TRUE AND parent IS NULL) OR (top_level = FALSE AND parent IS NOT NULL)
+    )
 );
 
 CREATE TABLE position (

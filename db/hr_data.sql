@@ -3,15 +3,25 @@
 -- --------------------------------------------------------------
 -- DATA
 
-INSERT INTO department (name, description) VALUES
-('Information Security', 'Responsible for information and systems security.'),
-('Administration', 'Manages administrative and office operations.'),
-('Human Resources', 'Handles human resources, including recruitment and benefits.'),
-('Marketing', 'Manages branding, advertising, and market research.');
+INSERT INTO department_type (name) VALUES
+('Division'),
+('Team');
+
+INSERT INTO department (name, description, code, top_level, parent, department_type) VALUES
+('Information Security', 'Responsible for information and systems security.', 'INFOSEC0', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division')),
+('Finance', 'Manages financial operations, accounting, and reporting.', 'FIN00000', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division')),
+('Human Resources', 'Handles human resources, including recruitment and benefits.', 'HR000000', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division')),
+('Marketing', 'Manages branding, advertising, and market research.', 'MKTG0000', TRUE, NULL, (SELECT id FROM department_type WHERE name = 'Division'));
+
+INSERT INTO department (name, description, code, top_level, parent, department_type) VALUES
+('Security Operations', 'Monitors and responds to security incidents.', 'INFOSEC1', FALSE, (SELECT id FROM department WHERE name = 'Information Security'), (SELECT id FROM department_type WHERE name = 'Team')),
+('Facilities', 'Manages offices, equipment and physical infrastructure.', 'FIN00001', FALSE, (SELECT id FROM department WHERE name = 'Finance'), (SELECT id FROM department_type WHERE name = 'Team')),
+('Accounts Payable', 'Manages outgoing payments to vendors and suppliers.', 'FIN00002', FALSE, (SELECT id FROM department WHERE name = 'Finance'), (SELECT id FROM department_type WHERE name = 'Team')),
+('Accounts Receivable', 'Manages incoming payments and customer invoicing.', 'FIN00003', FALSE, (SELECT id FROM department WHERE name = 'Finance'), (SELECT id FROM department_type WHERE name = 'Team'));
 
 INSERT INTO position (name, description, department) VALUES
 ('Information Security Analyst', 'Analysis and security of information.', (SELECT id FROM department WHERE name = 'Information Security')),
-('Administrative Analyst', 'Administrative support and daily operations.', (SELECT id FROM department WHERE name = 'Administration')),
+('Administrative Analyst', 'Administrative support and daily operations.', (SELECT id FROM department WHERE name = 'Finance')),
 ('HR Analyst', 'Support in human resources and personnel management.', (SELECT id FROM department WHERE name = 'Human Resources'));
 
 INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_email,username) VALUES
