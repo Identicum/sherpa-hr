@@ -20,19 +20,32 @@ $$ LANGUAGE plpgsql;
 -- --------------------------------------------------------------
 -- TABLES
 
+CREATE TABLE department_type (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE department (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
+    code VARCHAR(8) NOT NULL UNIQUE,
+    top_level BOOLEAN NOT NULL DEFAULT TRUE,
+    parent INT REFERENCES department(id) ON DELETE RESTRICT,
+    department_type INT NOT NULL REFERENCES department_type(id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT ck_department_toplevel_parent CHECK (
+        (top_level = TRUE AND parent IS NULL) OR (top_level = FALSE AND parent IS NOT NULL)
+    )
 );
 
 CREATE TABLE position (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    department INT REFERENCES department(id) ON DELETE RESTRICT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -56,10 +69,14 @@ CREATE TABLE employee (
     start_date DATE NOT NULL,
     end_date DATE,
     position INT REFERENCES position(id) ON DELETE RESTRICT,
-    manager INT REFERENCES person(id) ON DELETE SET NULL,
+    department INT NOT NULL REFERENCES department(id) ON DELETE RESTRICT,
+    department_relation VARCHAR(10) NOT NULL DEFAULT 'MEMBER' CHECK (department_relation IN ('MANAGER', 'MEMBER')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- at most one employee can be the MANAGER of a given department
+CREATE UNIQUE INDEX ix_employee_department_manager ON employee(department) WHERE department_relation = 'MANAGER';
 
 CREATE TABLE contractor (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 30001),
@@ -68,7 +85,6 @@ CREATE TABLE contractor (
     end_date DATE,
     company_name VARCHAR(100),
     department INT REFERENCES department(id) ON DELETE RESTRICT,
-    manager INT REFERENCES person(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -90,7 +106,8 @@ SELECT
     employee.start_date,
     employee.end_date,
     employee.position,
-    employee.manager,
+    employee.department,
+    employee.department_relation,
     position.name AS position_name,
     department.name AS department_name,
     CASE
@@ -100,7 +117,7 @@ SELECT
 FROM employee
 JOIN person ON employee.person=person.id
 LEFT JOIN position ON employee.position=position.id
-LEFT JOIN department ON position.department=department.id;
+JOIN department ON employee.department=department.id;
 
 CREATE OR REPLACE VIEW vw_contractor AS
 SELECT
@@ -117,7 +134,6 @@ SELECT
     contractor.end_date,
     contractor.company_name,
     contractor.department,
-    contractor.manager,
     department.name AS department_name,
     CASE
         WHEN contractor.start_date<=CURRENT_DATE AND (contractor.end_date IS NULL OR contractor.end_date>=CURRENT_DATE) THEN 'A'
@@ -139,7 +155,7 @@ WITH all_relationships AS (
         position_name,
         department_name,
         'Sherpa' AS company_name,
-        manager,
+        department_relation,
         status
     FROM vw_employee
     UNION ALL
@@ -152,7 +168,7 @@ WITH all_relationships AS (
         NULL::VARCHAR AS position_name,
         department_name,
         company_name,
-        manager,
+        NULL::VARCHAR AS department_relation,
         status
     FROM vw_contractor
 ),
@@ -180,7 +196,7 @@ SELECT
     r.position,
     r.position_name,
     r.department_name,
-    r.manager,
+    r.department_relation,
     r.company_name
 FROM person p
 LEFT JOIN ranked_relationships r ON p.id = r.person_id AND r.rn = 1;
@@ -191,35 +207,3 @@ LEFT JOIN ranked_relationships r ON p.id = r.person_id AND r.rn = 1;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO hrusr;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO hrusr;
-
--- --------------------------------------------------------------
--- DATA
-
-INSERT INTO department (name, description) VALUES
-('Information Security', 'Responsible for information and systems security.'),
-('Administration', 'Manages administrative and office operations.'),
-('Human Resources', 'Handles human resources, including recruitment and benefits.'),
-('Marketing', 'Manages branding, advertising, and market research.');
-
-INSERT INTO position (name, description, department) VALUES
-('Information Security Analyst', 'Analysis and security of information.', (SELECT id FROM department WHERE name = 'Information Security')),
-('Administrative Analyst', 'Administrative support and daily operations.', (SELECT id FROM department WHERE name = 'Administration')),
-('HR Analyst', 'Support in human resources and personnel management.', (SELECT id FROM department WHERE name = 'Human Resources'));
-
-INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_email,username) VALUES
-('John','Lennon','john.lennon@example.com','15012345','20-15012345-3',NULL,NULL),
-('Paul','McCartney','paul.mccartney@example.com','20023456','20-20023456-7',NULL,NULL),
-('George','Harrison','george.harrison@example.com','25034567','20-25034567-1',NULL,NULL),
-('Ringo','Starr','ringo.starr@example.com','30045678','20-30045678-5',NULL,NULL),
-('Eve','Adams','eve.adams@example.com','35056789','27-35056789-2',NULL,NULL),
-('Frank','White','frank.white@example.com','40067890','20-40067890-8',NULL,NULL);
-
-INSERT INTO employee (person,start_date,position,manager) VALUES
-((SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'),'1960-08-18',(SELECT id FROM position WHERE name='Information Security Analyst'),NULL),
-((SELECT id FROM person WHERE first_name='Paul' AND last_name='McCartney'),'1960-08-18',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT id FROM person WHERE first_name='George' AND last_name='Harrison'),'1960-08-18',(SELECT id FROM position WHERE name='HR Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT id FROM person WHERE first_name='Ringo' AND last_name='Starr'),'1962-08-14',(SELECT id FROM position WHERE name='Administrative Analyst'),(SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'));
-
-INSERT INTO contractor (person,start_date,company_name,department,manager) VALUES
-((SELECT id FROM person WHERE first_name='Eve' AND last_name='Adams'),'2022-01-10','Tech Solutions Inc.',(SELECT id FROM department WHERE name='Information Security'),(SELECT person.id FROM person JOIN employee ON person.id=employee.person WHERE first_name='John' AND last_name='Lennon')),
-((SELECT id FROM person WHERE first_name='Frank' AND last_name='White'),'2023-03-01','Creative Minds LLC',(SELECT id FROM department WHERE name='Marketing'),(SELECT person.id FROM person JOIN employee ON person.id=employee.person WHERE first_name='Paul' AND last_name='McCartney'));

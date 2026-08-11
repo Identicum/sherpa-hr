@@ -16,15 +16,16 @@
         <tbody>
         {% for c in contractors %}
             <tr>
-                <td>{{ c[0] }}</td>
+                <td><a href="{{ url_for('contractors.update', contractor_id=c[0]) }}">{{ c[0] }}</a></td>
                 <td>{{ c[1] }}</td>
                 <td>{{ c[2] }}</td>
                 <td>{{ c[3] }}</td>
                 <td>{{ c[4] or '' }}</td>
                 <td>
-                    <a href="{{ url_for('contractors.update', contractor_id=c[0]) }}" class="btn btn-sm btn-warning">Edit</a>
                     <form action="{{ url_for('contractors.delete', contractor_id=c[0]) }}" method="post" style="display:inline-block;">
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this contractor?');">Delete</button>
+                        <button type="submit" class="btn btn-link text-danger p-0 border-0" onclick="return confirm('Delete this contractor?');" title="Delete">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
                     </form>
                 </td>
             </tr>

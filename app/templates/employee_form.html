@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>{{ action }} Employee</h1>
+    <h1 class="mb-4">{{ action }} Employee</h1>
     <form method="post">
-        <div class="row">
-            <div class="col-md-6">
+        <div class="card border-primary shadow-sm" style="width: 28rem;">
+            <div class="card-body">
                 {% if action == 'Add' %}
                 <div class="mb-3">
                     <label for="person" class="form-label">Person</label>
@@ -15,15 +15,11 @@
                     </select>
                 </div>
                 {% else %}
-                <div class="mb-3">
-                    <label class="form-label">Person</label>
-                    <p class="form-control-plaintext">{{ employee.person_rel.last_name }}, {{ employee.person_rel.first_name }}</p>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Personal Email</label>
-                    <p class="form-control-plaintext">{{ employee.person_rel.personal_email }}</p>
-                </div>
+                <h6 class="fw-bold text-muted">{{ employee.person_rel.first_name }} {{ employee.person_rel.last_name }} ({{ employee.person_rel.id }})</h6>
                 {% endif %}
+                <hr>
+
+                <h6 class="fw-bold text-muted">Employee information</h6>
                 <div class="mb-3">
                     <label for="start_date" class="form-label">Start Date</label>
                     <input type="date" class="form-control" id="start_date" name="start_date" required value="{{ employee.start_date if employee else '' }}">
@@ -32,8 +28,6 @@
                     <label for="end_date" class="form-label">End Date</label>
                     <input type="date" class="form-control" id="end_date" name="end_date" value="{{ employee.end_date if employee else '' }}">
                 </div>
-            </div>
-            <div class="col-md-6">
                 <div class="mb-3">
                     <label for="position_id" class="form-label">Position</label>
                     <select class="form-select" id="position_id" name="position_id">
@@ -44,17 +38,26 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="manager_id" class="form-label">Manager</label>
-                    <select class="form-select" id="manager_id" name="manager_id">
-                        <option value="">-- None --</option>
-                        {% for mgr in managers %}
-                            <option value="{{ mgr[0] }}" {% if employee and employee.manager_id == mgr[0] %}selected{% endif %}>{{ mgr[2] }}, {{ mgr[1] }}</option>
+                    <label for="department_id" class="form-label">Department</label>
+                    <select class="form-select" id="department_id" name="department_id" required>
+                        <option value="">-- Select a Department --</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept[0] }}" {% if employee and employee.department_id == dept[0] %}selected{% endif %}>{{ dept[1] }}</option>
                         {% endfor %}
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label for="department_relation" class="form-label">Department Relation</label>
+                    <select class="form-select" id="department_relation" name="department_relation">
+                        {% for rel in department_relations %}
+                            <option value="{{ rel }}" {% if employee and employee.department_relation == rel %}selected{% elif not employee and rel == 'MEMBER' %}selected{% endif %}>{{ rel }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">{{ action }}</button>
+                <a href="{{ url_for('employees.list') }}" class="btn btn-secondary">Cancel</a>
             </div>
         </div>
-        <button type="submit" class="btn btn-success">{{ action }}</button>
-        <a href="{{ url_for('employees.list') }}" class="btn btn-secondary">Cancel</a>
     </form>
 {% endblock %}

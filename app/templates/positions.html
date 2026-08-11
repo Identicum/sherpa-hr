@@ -8,7 +8,6 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Description</th>
-                <th>Department</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -18,7 +17,6 @@
                 <td>{{ pos[0] }}</td>
                 <td>{{ pos[1] }}</td>
                 <td>{{ pos[2] }}</td>
-                <td>{{ pos[3] or '' }}</td>
                 <td>
                     <a href="{{ url_for('positions.update', position_id=pos[0]) }}" class="btn btn-sm btn-warning">Edit</a>
                     <form action="{{ url_for('positions.delete', position_id=pos[0]) }}" method="post" style="display:inline-block;">

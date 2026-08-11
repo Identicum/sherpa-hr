@@ -1,19 +1,25 @@
 from marshmallow import Schema, fields
 
 
+class DepartmentTypeSchema(Schema):
+    id = fields.Int()
+    name = fields.Str()
+
+
 class DepartmentSchema(Schema):
     id = fields.Int()
     name = fields.Str()
     description = fields.Str(allow_none=True)
+    code = fields.Str()
+    top_level = fields.Bool()
+    parent_id = fields.Int(allow_none=True)
+    department_type_id = fields.Int()
 
 
 class PositionSchema(Schema):
     id = fields.Int()
     name = fields.Str()
     description = fields.Str(allow_none=True)
-    department_id = fields.Int(allow_none=True)
-    # extra field returned by API
-    department_name = fields.Str(allow_none=True)
 
 
 class PersonSchema(Schema):
@@ -45,7 +51,7 @@ class PersonDataSchema(Schema):
     position = fields.Int(allow_none=True)
     position_name = fields.Str(allow_none=True)
     department_name = fields.Str(allow_none=True)
-    manager = fields.Int(allow_none=True)
+    department_relation = fields.Str(allow_none=True)
     company_name = fields.Str(allow_none=True)
 
 
@@ -55,7 +61,8 @@ class EmployeeSchema(Schema):
     start_date = fields.Date()
     end_date = fields.Date(allow_none=True)
     position_id = fields.Int(allow_none=True)
-    manager_id = fields.Int(allow_none=True)
+    department_id = fields.Int()
+    department_relation = fields.Str()
 
 
 class ContractorSchema(Schema):
@@ -65,4 +72,3 @@ class ContractorSchema(Schema):
     end_date = fields.Date(allow_none=True)
     company_name = fields.Str(allow_none=True)
     department_id = fields.Int(allow_none=True)
-    manager_id = fields.Int(allow_none=True)

@@ -7,8 +7,36 @@
             <input type="text" class="form-control" id="name" name="name" required value="{{ department[0] if department else '' }}">
         </div>
         <div class="mb-3">
+            <label for="code" class="form-label">Code</label>
+            <input type="text" class="form-control" id="code" name="code" maxlength="8" required value="{{ department[1] if department else '' }}">
+        </div>
+        <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description">{{ department[1] if department else '' }}</textarea>
+            <textarea class="form-control" id="description" name="description">{{ department[2] if department else '' }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="department_type_id" class="form-label">Department Type</label>
+            <select class="form-select" id="department_type_id" name="department_type_id" required>
+                <option value="">-- Select a Type --</option>
+                {% for dt in department_types %}
+                    <option value="{{ dt[0] }}" {% if department and department[3]|string == dt[0]|string %}selected{% endif %}>{{ dt[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="top_level" name="top_level"
+                   {% if not department or department[4] %}checked{% endif %}
+                   onchange="document.getElementById('parent_group').style.display = this.checked ? 'none' : 'block';">
+            <label class="form-check-label" for="top_level">Top Level (no parent department)</label>
+        </div>
+        <div class="mb-3" id="parent_group" style="display: {{ 'none' if not department or department[4] else 'block' }};">
+            <label for="parent_id" class="form-label">Parent Department</label>
+            <select class="form-select" id="parent_id" name="parent_id">
+                <option value="">-- Select a Parent --</option>
+                {% for dept in departments %}
+                    <option value="{{ dept[0] }}" {% if department and department[5] == dept[0] %}selected{% endif %}>{{ dept[1] }}</option>
+                {% endfor %}
+            </select>
         </div>
         <button type="submit" class="btn btn-success">{{ action }}</button>
         <a href="{{ url_for('departments.list') }}" class="btn btn-secondary">Cancel</a>

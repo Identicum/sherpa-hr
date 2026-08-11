@@ -13,7 +13,7 @@ def api_list():
       - PersonData
     responses:
       200:
-        description: List of all persons, including workforce_id, work_type, manager_id, start_date, end_date
+        description: List of all persons, including workforce_id, work_type, department_relation, start_date, end_date
         schema:
           type: array
           items:
