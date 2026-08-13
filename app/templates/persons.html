@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% set genders = {'M': 'Male', 'F': 'Female', 'O': 'Other'} %}
     <h1>Persons</h1>
     <a href="{{ url_for('persons.add') }}" class="btn btn-primary mb-3">Add Person</a>
     <table class="table table-striped">
@@ -11,6 +12,8 @@
                 <th>Personal Email</th>
                 <th>Org Email</th>
                 <th>Username</th>
+                <th>Gender</th>
+                <th>Birthdate</th>
             </tr>
         </thead>
         <tbody>
@@ -22,6 +25,8 @@
                 <td>{{ person.personal_email }}</td>
                 <td>{{ person.org_email or '-' }}</td>
                 <td>{{ person.username or '-' }}</td>
+                <td>{{ genders.get(person.gender, '-') }}</td>
+                <td>{{ person.birthdate or '-' }}</td>
             </tr>
             {% endfor %}
         </tbody>

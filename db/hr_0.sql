@@ -59,6 +59,8 @@ CREATE TABLE person (
     username VARCHAR(50),
     id_number VARCHAR(10) UNIQUE NOT NULL,
     tax_id VARCHAR(15) UNIQUE NOT NULL,
+    gender VARCHAR(1) CHECK (gender IN ('M', 'F', 'O')),
+    birthdate DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -91,6 +93,27 @@ CREATE TABLE contractor (
 
 -- --------------------------------------------------------------
 -- VIEWS
+
+CREATE OR REPLACE VIEW vw_department AS
+SELECT
+    department.id,
+    department.name,
+    department.description,
+    department.code,
+    department.top_level,
+    department.parent,
+    parent_department.name AS parent_name,
+    department.department_type,
+    department_type.name AS department_type_name,
+    manager.id AS manager_employee_id,
+    manager.person AS manager_person_id,
+    manager_person.first_name AS manager_first_name,
+    manager_person.last_name AS manager_last_name
+FROM department
+JOIN department_type ON department.department_type = department_type.id
+LEFT JOIN department parent_department ON department.parent = parent_department.id
+LEFT JOIN employee manager ON manager.department = department.id AND manager.department_relation = 'MANAGER'
+LEFT JOIN person manager_person ON manager.person = manager_person.id;
 
 CREATE OR REPLACE VIEW vw_employee AS
 SELECT
@@ -187,6 +210,8 @@ SELECT
     p.org_email,
     p.id_number,
     p.tax_id,
+    p.gender,
+    p.birthdate,
     r.relationship_type,
     p.created_at,
     p.updated_at,

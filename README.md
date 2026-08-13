@@ -12,16 +12,17 @@ It is a **satellite component** of Sherpa, Identicum's internal suite of reusabl
 
 The app models a simple organization:
 
-- **Department** — organizational unit (`name`, `description`, `code`). Departments form a hierarchy: each has a `department_type` (e.g. Division, Team) and an optional `parent` Department, with `top_level` marking root departments (no parent) versus nested ones (parent required).
+- **Department** — organizational unit (`name`, `description`, `code`). Departments form a hierarchy: each has a `department_type` (e.g. Division, Team) and an optional `parent` Department, with `top_level` marking root departments (no parent) versus nested ones (parent required). Exposes computed `manager_employee_id`/`manager_person_id` — the Employee (and the Person it references) with `department_relation = MANAGER` in that Department, or `null` if the Department currently has no manager.
 - **Position** — a job title (`name`, `description`), independent of any Department.
-- **Person** — an individual, uniquely identified by `id_number` and `tax_id`, with personal and (optional) organizational contact info (`personal_email`, `org_email`, `username`).
+- **Person** — an individual, uniquely identified by `id_number` and `tax_id`, with personal and (optional) organizational contact info (`personal_email`, `org_email`, `username`) and optional demographic data (`gender` — `M`/`F`/`O`, `birthdate`).
 - **Employee** — a work relationship linking a Person to a Position and a Department, with `start_date`/`end_date` and a `department_relation` (`MANAGER`/`MEMBER`) describing their standing in that Department. A Department can have at most one Employee with `department_relation = MANAGER`.
 - **Contractor** — a work relationship linking a Person to a Department and an external `company_name`, also with `start_date`/`end_date`. Contractors cannot be a Department's manager.
 
 A Person can have at most one Employee and/or one Contractor relationship. Deleting a Person is blocked while related Employee or Contractor relationships exist. Deleting a Department is blocked while it has assigned Employees, Contractors, or child Departments.
 
-Three read-only SQL views compute derived/aggregated data (see [db/hr_0.sql](db/hr_0.sql)):
+Four read-only SQL views compute derived/aggregated data (see [db/hr_0.sql](db/hr_0.sql)):
 
+- `vw_department` — join Department with its `department_type`, its parent Department's name, and the Employee (if any) with `department_relation = MANAGER` in that Department, exposing `manager_employee_id`/`manager_person_id`/`manager_first_name`/`manager_last_name` (`null` when there's no manager). This view is the one exposed through the read-only `DepartmentData` API/model.
 - `vw_employee` / `vw_contractor` — join Person with their Employee/Contractor row and compute a `status` (`A`ctive / `I`nactive) from `start_date`/`end_date` against `CURRENT_DATE`.
 - `vw_persondata` — one row per Person, unioning the Employee and Contractor views and picking the most recent relationship. Persons with no relationship at all still appear, with `status` defaulting to `'I'`. This view is the one exposed through the read-only `PersonData` API/model — the intended integration point for external systems that just need "who is this person, and what's their current status."
 

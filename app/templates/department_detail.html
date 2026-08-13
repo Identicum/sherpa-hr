@@ -106,8 +106,8 @@
                                 <p class="card-text mb-1">{{ department.description }}</p>
                                 <p class="card-text mb-0">
                                     Manager:
-                                    {% if department.manager_employee %}
-                                        {{ department.manager_employee.person_rel.first_name }} {{ department.manager_employee.person_rel.last_name }}
+                                    {% if department.manager_employee_id %}
+                                        <a href="{{ url_for('employees.update', employee_id=department.manager_employee_id) }}">{{ department.manager_employee.person_rel.first_name }} {{ department.manager_employee.person_rel.last_name }}</a>
                                     {% else %}
                                         <span class="text-muted">-</span>
                                     {% endif %}

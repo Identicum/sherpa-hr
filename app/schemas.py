@@ -14,6 +14,8 @@ class DepartmentSchema(Schema):
     top_level = fields.Bool()
     parent_id = fields.Int(allow_none=True)
     department_type_id = fields.Int()
+    manager_employee_id = fields.Int(allow_none=True, dump_only=True)
+    manager_person_id = fields.Int(allow_none=True, dump_only=True)
 
 
 class PositionSchema(Schema):
@@ -31,6 +33,8 @@ class PersonSchema(Schema):
     username = fields.Str(allow_none=True)
     id_number = fields.Str()
     tax_id = fields.Str()
+    gender = fields.Str(allow_none=True)
+    birthdate = fields.Date(allow_none=True)
 
 
 class PersonDataSchema(Schema):
@@ -42,6 +46,8 @@ class PersonDataSchema(Schema):
     org_email = fields.Str(allow_none=True)
     id_number = fields.Str()
     tax_id = fields.Str()
+    gender = fields.Str(allow_none=True)
+    birthdate = fields.Date(allow_none=True)
     relationship_type = fields.Str(allow_none=True)
     created_at = fields.DateTime(allow_none=True)
     updated_at = fields.DateTime(allow_none=True)
@@ -53,6 +59,22 @@ class PersonDataSchema(Schema):
     department_name = fields.Str(allow_none=True)
     department_relation = fields.Str(allow_none=True)
     company_name = fields.Str(allow_none=True)
+
+
+class DepartmentDataSchema(Schema):
+    id = fields.Int()
+    name = fields.Str()
+    description = fields.Str(allow_none=True)
+    code = fields.Str()
+    top_level = fields.Bool()
+    parent = fields.Int(allow_none=True)
+    parent_name = fields.Str(allow_none=True)
+    department_type = fields.Int()
+    department_type_name = fields.Str()
+    manager_employee_id = fields.Int(allow_none=True)
+    manager_person_id = fields.Int(allow_none=True)
+    manager_first_name = fields.Str(allow_none=True)
+    manager_last_name = fields.Str(allow_none=True)
 
 
 class EmployeeSchema(Schema):

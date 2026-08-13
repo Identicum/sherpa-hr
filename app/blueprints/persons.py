@@ -26,6 +26,11 @@ def api_update(person_id):
               type: string
             username:
               type: string
+            gender:
+              type: string
+            birthdate:
+              type: string
+              format: date
     responses:
       200:
         description: Updated person details
@@ -38,10 +43,18 @@ def api_update(person_id):
     if 'username' in data:
         current_app.logger.debug("Updating username for person id: {}", person_id)
         person.username = data['username']
+    if 'gender' in data:
+        current_app.logger.debug("Updating gender for person id: {}", person_id)
+        person.gender = data['gender']
+    if 'birthdate' in data:
+        current_app.logger.debug("Updating birthdate for person id: {}", person_id)
+        person.birthdate = data['birthdate']
     db.session.commit()
     return jsonify({
         'org_email': person.org_email,
-        'username': person.username
+        'username': person.username,
+        'gender': person.gender,
+        'birthdate': person.birthdate
     })
 
 @persons_bp.route('/persons')
@@ -65,7 +78,9 @@ def add():
             id_number=data.get('id_number'),
             tax_id=data.get('tax_id'),
             org_email=data.get('org_email'),
-            username=data.get('username')
+            username=data.get('username'),
+            gender=data.get('gender') or None,
+            birthdate=data.get('birthdate') or None
         )
         db.session.add(person)
         db.session.commit()
@@ -85,6 +100,8 @@ def update(person_id):
         person.username = data.get('username')
         person.id_number = data.get('id_number')
         person.tax_id = data.get('tax_id')
+        person.gender = data.get('gender') or None
+        person.birthdate = data.get('birthdate') or None
         db.session.commit()
         flash('Person updated!')
         return redirect(url_for('persons.list'))

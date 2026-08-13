@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% set genders = {'M': 'Male', 'F': 'Female', 'O': 'Other'} %}
     <h1 class="mb-4">{{ person.first_name }} {{ person.last_name }}</h1>
 
     <div class="card border-primary shadow-sm" style="width: 24rem;">
@@ -24,6 +25,8 @@
             <p class="card-text mb-1">{{ person.personal_email }}</p>
             <p class="card-text mb-0">ID number: {{ person.id_number }}</p>
             <p class="card-text mb-0">Tax ID: {{ person.tax_id }}</p>
+            <p class="card-text mb-0">Gender: {{ genders.get(person.gender, '-') }}</p>
+            <p class="card-text mb-0">Birthdate: {{ person.birthdate or '-' }}</p>
             <hr>
 
             <h6 class="fw-bold text-muted mt-3">Organizational information</h6>

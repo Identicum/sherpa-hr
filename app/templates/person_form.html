@@ -34,6 +34,19 @@
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" value="{{ person.username if person else '' }}">
                 </div>
+                <div class="mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select class="form-select" id="gender" name="gender">
+                        <option value="" {% if not person or not person.gender %}selected{% endif %}>-</option>
+                        <option value="M" {% if person and person.gender == 'M' %}selected{% endif %}>Male</option>
+                        <option value="F" {% if person and person.gender == 'F' %}selected{% endif %}>Female</option>
+                        <option value="O" {% if person and person.gender == 'O' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="birthdate" class="form-label">Birthdate</label>
+                    <input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ person.birthdate if person else '' }}">
+                </div>
             </div>
         </div>
         <button type="submit" class="btn btn-success">{{ action }}</button>

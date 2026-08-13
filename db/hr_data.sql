@@ -27,13 +27,13 @@ INSERT INTO position (name, description) VALUES
 ('Administrative Analyst', 'Administrative support and daily operations.'),
 ('HR Analyst', 'Support in human resources and personnel management.');
 
-INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_email,username) VALUES
-('John','Lennon','john.lennon@example.com','15012345','20-15012345-3',NULL,NULL),
-('Paul','McCartney','paul.mccartney@example.com','20023456','20-20023456-7',NULL,NULL),
-('George','Harrison','george.harrison@example.com','25034567','20-25034567-1',NULL,NULL),
-('Ringo','Starr','ringo.starr@example.com','30045678','20-30045678-5',NULL,NULL),
-('Eve','Adams','eve.adams@example.com','35056789','27-35056789-2',NULL,NULL),
-('Frank','White','frank.white@example.com','40067890','20-40067890-8',NULL,NULL);
+INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,org_email,username,gender,birthdate) VALUES
+('John','Lennon','john.lennon@example.com','15012345','20-15012345-3',NULL,NULL,'M','1940-10-09'),
+('Paul','McCartney','paul.mccartney@example.com','20023456','20-20023456-7',NULL,NULL,'M','1942-06-18'),
+('George','Harrison','george.harrison@example.com','25034567','20-25034567-1',NULL,NULL,'M','1943-02-25'),
+('Ringo','Starr','ringo.starr@example.com','30045678','20-30045678-5',NULL,NULL,'M','1940-07-07'),
+('Eve','Adams','eve.adams@example.com','35056789','27-35056789-2',NULL,NULL,'F','1985-04-12'),
+('Frank','White','frank.white@example.com','40067890','20-40067890-8',NULL,NULL,'M','1978-11-30');
 
 INSERT INTO employee (person,start_date,position,department,department_relation) VALUES
 ((SELECT id FROM person WHERE first_name='John' AND last_name='Lennon'),'1960-08-18',(SELECT id FROM position WHERE name='Information Security Analyst'),(SELECT id FROM department WHERE name='Information Security'),'MANAGER'),

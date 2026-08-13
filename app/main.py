@@ -4,6 +4,7 @@ from flasgger import Flasgger
 from models import db
 from schemas import (
     DepartmentSchema,
+    DepartmentDataSchema,
     PositionSchema,
     PersonSchema,
     PersonDataSchema,
@@ -12,6 +13,7 @@ from schemas import (
 )
 import config as config
 from blueprints.departments import departments_bp
+from blueprints.departmentdata import departmentdata_bp
 from blueprints.positions import positions_bp
 from blueprints.persons import persons_bp
 from blueprints.persondata import persondata_bp
@@ -53,6 +55,7 @@ def _schema_def(schema_cls):
 swagger = Flasgger(app, template={
     'definitions': {
         'Department': _schema_def(DepartmentSchema),
+        'DepartmentData': _schema_def(DepartmentDataSchema),
         'Position': _schema_def(PositionSchema),
         'Person': _schema_def(PersonSchema),
         'PersonData': _schema_def(PersonDataSchema),
@@ -63,6 +66,7 @@ swagger = Flasgger(app, template={
 
 # Register blueprints
 app.register_blueprint(departments_bp)
+app.register_blueprint(departmentdata_bp)
 app.register_blueprint(positions_bp)
 app.register_blueprint(persons_bp)
 app.register_blueprint(persondata_bp)
