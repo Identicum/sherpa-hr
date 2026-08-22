@@ -56,6 +56,7 @@ class PersonDataSchema(Schema):
     status = fields.Str(allow_none=True)
     position = fields.Int(allow_none=True)
     position_name = fields.Str(allow_none=True)
+    department_id = fields.Int(allow_none=True)
     department_name = fields.Str(allow_none=True)
     department_relation = fields.Str(allow_none=True)
     company_name = fields.Str(allow_none=True)

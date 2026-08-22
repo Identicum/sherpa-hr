@@ -176,6 +176,7 @@ WITH all_relationships AS (
         end_date,
         position,
         position_name,
+        department,
         department_name,
         'Sherpa' AS company_name,
         department_relation,
@@ -189,6 +190,7 @@ WITH all_relationships AS (
         end_date,
         NULL::INT AS position,
         NULL::VARCHAR AS position_name,
+        department,
         department_name,
         company_name,
         NULL::VARCHAR AS department_relation,
@@ -220,6 +222,7 @@ SELECT
     COALESCE(r.status, 'I') AS status,
     r.position,
     r.position_name,
+    r.department AS department_id,
     r.department_name,
     r.department_relation,
     r.company_name

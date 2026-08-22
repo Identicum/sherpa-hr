@@ -118,6 +118,7 @@ class PersonData(db.Model):
     status = db.Column(db.String(1))
     position = db.Column(db.Integer)
     position_name = db.Column(db.String(100))
+    department_id = db.Column(db.Integer)
     department_name = db.Column(db.String(100))
     department_relation = db.Column(db.String(10))
     company_name = db.Column(db.String(100))
