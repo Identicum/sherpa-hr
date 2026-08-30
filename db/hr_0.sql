@@ -220,7 +220,7 @@ SELECT
     r.start_date,
     r.end_date,
     COALESCE(r.status, 'I') AS status,
-    r.position,
+    r.position AS position_id,
     r.position_name,
     r.department AS department_id,
     r.department_name,

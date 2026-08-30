@@ -54,7 +54,7 @@ class PersonDataSchema(Schema):
     start_date = fields.Date(allow_none=True)
     end_date = fields.Date(allow_none=True)
     status = fields.Str(allow_none=True)
-    position = fields.Int(allow_none=True)
+    position_id = fields.Int(allow_none=True)
     position_name = fields.Str(allow_none=True)
     department_id = fields.Int(allow_none=True)
     department_name = fields.Str(allow_none=True)

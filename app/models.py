@@ -116,7 +116,7 @@ class PersonData(db.Model):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     status = db.Column(db.String(1))
-    position = db.Column(db.Integer)
+    position_id = db.Column(db.Integer)
     position_name = db.Column(db.String(100))
     department_id = db.Column(db.Integer)
     department_name = db.Column(db.String(100))
