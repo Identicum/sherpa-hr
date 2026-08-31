@@ -131,7 +131,7 @@ class DepartmentData(db.Model):
     description = db.Column(db.Text)
     code = db.Column(db.String(8))
     top_level = db.Column(db.Boolean)
-    parent = db.Column(db.Integer)
+    parent_id = db.Column(db.Integer)
     parent_name = db.Column(db.String(100))
     department_type = db.Column(db.Integer)
     department_type_name = db.Column(db.String(100))

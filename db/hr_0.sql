@@ -101,7 +101,7 @@ SELECT
     department.description,
     department.code,
     department.top_level,
-    department.parent,
+    department.parent AS parent_id,
     parent_department.name AS parent_name,
     department.department_type,
     department_type.name AS department_type_name,

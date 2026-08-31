@@ -68,7 +68,7 @@ class DepartmentDataSchema(Schema):
     description = fields.Str(allow_none=True)
     code = fields.Str()
     top_level = fields.Bool()
-    parent = fields.Int(allow_none=True)
+    parent_id = fields.Int(allow_none=True)
     parent_name = fields.Str(allow_none=True)
     department_type = fields.Int()
     department_type_name = fields.Str()
