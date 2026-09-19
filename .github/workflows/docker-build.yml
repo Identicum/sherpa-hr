@@ -8,6 +8,8 @@ on:
     - 'app/**'
     - 'Dockerfile'
     - 'requirements.txt'
+    - 'db/**'
+    - 'init_db.sh'
   workflow_dispatch:
 
 jobs:
