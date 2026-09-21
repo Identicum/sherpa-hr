@@ -53,14 +53,15 @@ def api_get(position_id):
 @positions_bp.route('/positions')
 def list():
     positions = Position.query.order_by(Position.id).all()
-    return render_template('positions.html', positions=[(p.id, p.name, p.description) for p in positions])
+    return render_template('positions.html', positions=[(p.id, p.name, p.code, p.description) for p in positions])
 
 @positions_bp.route('/positions/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
         name = request.form['name']
+        code = request.form['code']
         description = request.form['description']
-        pos = Position(name=name, description=description)
+        pos = Position(name=name, code=code, description=description)
         db.session.add(pos)
         db.session.commit()
         flash('Position added!')
@@ -72,11 +73,12 @@ def update(position_id):
     pos = Position.query.get_or_404(position_id)
     if request.method == 'POST':
         pos.name = request.form['name']
+        pos.code = request.form['code']
         pos.description = request.form['description']
         db.session.commit()
         flash('Position updated!')
         return redirect(url_for('positions.list'))
-    position = (pos.name, pos.description)
+    position = (pos.name, pos.code, pos.description)
     return render_template('position_form.html', action='Update', position=position, position_id=position_id)
 
 @positions_bp.route('/positions/delete/<int:position_id>', methods=['POST'])

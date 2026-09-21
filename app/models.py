@@ -46,6 +46,7 @@ class Position(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     name = db.Column('name', db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
+    code = db.Column(db.String(8), unique=True, nullable=False)
     employees = db.relationship('Employee', backref='position', lazy=True)
 
 class Person(db.Model):

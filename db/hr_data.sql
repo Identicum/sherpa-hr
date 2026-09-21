@@ -24,10 +24,10 @@ INSERT INTO department (name, description, code, top_level, parent, department_t
 ('Accounts Payable', 'Manages outgoing payments to vendors and suppliers.', 'FINANCE2', FALSE, (SELECT id FROM department WHERE code = 'FINANCE'), (SELECT id FROM department_type WHERE name = 'Team')),
 ('Accounts Receivable', 'Manages incoming payments and customer invoicing.', 'FINANCE3', FALSE, (SELECT id FROM department WHERE code = 'FINANCE'), (SELECT id FROM department_type WHERE name = 'Team'));
 
-INSERT INTO position (name, description) VALUES
-('Manager', 'Manages a team and oversees departmental operations.'),
-('Analyst', 'Performs analysis and supports daily operations.'),
-('Director', 'Directs strategy and leads a department.');
+INSERT INTO position (name, description, code) VALUES
+('Manager', 'Manages a team and oversees departmental operations.', 'MANAGER'),
+('Analyst', 'Performs analysis and supports daily operations.', 'ANALYST'),
+('Director', 'Directs strategy and leads a department.', 'DIRECTOR');
 
 INSERT INTO person (first_name,last_name,personal_email,id_number,tax_id,gender,birthdate) VALUES
 ('John','Lennon','john.lennon@example.com','15012345','20-15012345-3','M','1940-10-09'),

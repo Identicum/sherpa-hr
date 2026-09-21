@@ -22,6 +22,7 @@ class PositionSchema(Schema):
     id = fields.Int()
     name = fields.Str()
     description = fields.Str(allow_none=True)
+    code = fields.Str()
 
 
 class PersonSchema(Schema):

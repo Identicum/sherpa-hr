@@ -13,7 +13,7 @@ It is a **satellite component** of Sherpa, Identicum's internal suite of reusabl
 The app models a simple organization:
 
 - **Department** — organizational unit (`name`, `description`, `code`). Departments form a hierarchy: each has a `department_type` (e.g. Division, Team) and an optional `parent` Department, with `top_level` marking root departments (no parent) versus nested ones (parent required). Exposes computed `manager_employee_id`/`manager_person_id` — the Employee (and the Person it references) with `department_relation = MANAGER` in that Department, or `null` if the Department currently has no manager.
-- **Position** — a job title (`name`, `description`), independent of any Department.
+- **Position** — a job title (`name`, `description`, `code`), independent of any Department.
 - **Person** — an individual, uniquely identified by `id_number` and `tax_id`, with personal and (optional) organizational contact info (`personal_email`, `org_email`, `username`) and optional demographic data (`gender` — `M`/`F`/`O`, `birthdate`).
 - **Employee** — a work relationship linking a Person to a Position and a Department, with `start_date`/`end_date` and a `department_relation` (`MANAGER`/`MEMBER`) describing their standing in that Department. A Department can have at most one Employee with `department_relation = MANAGER`.
 - **Contractor** — a work relationship linking a Person to a Department and an external `company_name`, also with `start_date`/`end_date`. Contractors cannot be a Department's manager.

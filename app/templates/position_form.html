@@ -7,8 +7,12 @@
             <input type="text" class="form-control" id="name" name="name" required value="{{ position[0] if position else '' }}">
         </div>
         <div class="mb-3">
+            <label for="code" class="form-label">Code</label>
+            <input type="text" class="form-control" id="code" name="code" maxlength="8" required value="{{ position[1] if position else '' }}">
+        </div>
+        <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description">{{ position[1] if position else '' }}</textarea>
+            <textarea class="form-control" id="description" name="description">{{ position[2] if position else '' }}</textarea>
         </div>
         <button type="submit" class="btn btn-success">{{ action }}</button>
         <a href="{{ url_for('positions.list') }}" class="btn btn-secondary">Cancel</a>
